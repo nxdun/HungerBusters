@@ -1,5 +1,5 @@
 import { Image, ScrollView, Text, View } from "react-native";
-import { Redirect, router } from "expo-router";
+import { Link, Redirect, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -34,11 +34,17 @@ export default function App() {
           <Text className="text-sm font-pregular text-gray-100 mt-7 text-center ">
             Food for Everyone Zero Hunger
           </Text>
-
+          
           <CustomButton title="Get Started"
           handlePress={()=> router.push('/sign-in')}
           containerStyles="w-full mt-7" 
           />
+          
+          <Link href="/home" className="text-center mt-3">
+            <Text className="text-sm font-pregular text-gray-100">
+              Go to Homepage From Here
+            </Text>
+          </Link>
 
           <StatusBar backgroundColor="#161622" style="light" />
 

@@ -2,7 +2,7 @@
   "name": "hunger-busters",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  "scripts": {
+    "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
     "android": "expo start --android",
