@@ -7,6 +7,7 @@ import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { Link } from 'expo-router';
 
+import axios from 'axios';
 
 const SignUp = () => {
   const [ form, setForm ] = useState({
@@ -15,9 +16,31 @@ const SignUp = () => {
     password: ''
   })
 
-  const [isSubmitting, setisSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const submit = () => {}
+  const submit = async () => {
+    setIsSubmitting(true);
+    setError('');
+  
+    // Validate form fields
+    if (!form.username || !form.email || !form.password) {
+      setError('All fields are required.');
+      setIsSubmitting(false);
+      return;
+    }
+  
+    try {
+      const response = await axios.post('http://192.168.36.235:3543/api/v1/users', form);
+  
+      console.log('User created successfully:', response.data.message);
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error.response?.data?.message || 'An error occurred.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -46,8 +69,9 @@ const SignUp = () => {
             handleChangeText={(e) => setForm({...form, password: e})}
             otherStyles="mt-7"
           />
+          {error ? <Text className="text-red-500">{error}</Text> : null}
             <CustomButton 
-              title = "Sign In"
+              title = "Sign Up"
               handlePress={submit}
               containerStyles="mt-7"
               isLoading={isSubmitting}
@@ -56,7 +80,7 @@ const SignUp = () => {
               <Text className="text-lg text-gray-100 font-pregular">
                 Have an account already?
               </Text>
-              <Link href="/sign-in" className="text-lg font-psemibold text-secondary ">Sign in</Link>
+              <Link href="/sign-in" className="text-lg font-psemibold text-secondary ">Sign In</Link>
             </View>
         </View>
       </ScrollView>
