@@ -32,6 +32,7 @@ const SignUp = () => {
   
     try {
       const response = await axios.post('http://192.168.36.235:3543/api/v1/users', form);
+      //Please Replase your Ip address in here cmd ipconfig
   
       console.log('User created successfully:', response.data.message);
     } catch (error) {
