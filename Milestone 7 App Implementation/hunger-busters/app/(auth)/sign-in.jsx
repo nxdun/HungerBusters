@@ -7,6 +7,9 @@ import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { Link } from 'expo-router';
 
+import { useRouter } from 'expo-router';
+import axios from 'axios';
+
 
 const SignIn = () => {
   const [ form, setForm ] = useState({
@@ -14,9 +17,37 @@ const SignIn = () => {
     password: ''
   })
 
-  const [isSubmitting, setisSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [error, setError] = useState('');
+  const router = useRouter();
 
-  const submit = () => {}
+  const submit = async () => {
+    setIsSubmitting(true);
+    setError('');
+
+    // Validate form fields
+    if (!form.email || !form.password) {
+      setError('All fields are required.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://192.168.36.235:3543/api/v1/auth', form);
+      //Please Replase your Ip address in here cmd ipconfig
+      
+      // Handle successful login
+      console.log('Login successful:', response.data.message);
+      // Store the token if needed, e.g., using AsyncStorage or context
+      // Redirect to the home screen
+      router.replace('/home');
+    } catch (error) {
+      console.error('Error:', error);
+      setError(error.response?.data?.message || 'An error occurred.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -37,6 +68,7 @@ const SignIn = () => {
             handleChangeText={(e) => setForm({...form, password: e})}
             otherStyles="mt-7"
           />
+          {error ? <Text className="text-red-500">{error}</Text> : null}
             <CustomButton 
               title = "Sign In"
               handlePress={submit}

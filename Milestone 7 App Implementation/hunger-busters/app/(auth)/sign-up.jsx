@@ -7,6 +7,7 @@ import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { Link } from 'expo-router';
 
+import { useRouter } from 'expo-router';
 import axios from 'axios';
 
 const SignUp = () => {
@@ -18,6 +19,7 @@ const SignUp = () => {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const submit = async () => {
     setIsSubmitting(true);
@@ -32,8 +34,10 @@ const SignUp = () => {
   
     try {
       const response = await axios.post('http://192.168.36.235:3543/api/v1/users', form);
+      //Please Replase your Ip address in here cmd ipconfig
   
       console.log('User created successfully:', response.data.message);
+      router.replace('/sign-in');
     } catch (error) {
       console.error('Error:', error);
       setError(error.response?.data?.message || 'An error occurred.');
