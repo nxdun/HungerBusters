@@ -1,6 +1,7 @@
 import { View, Text, Image, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React from 'react'
+import { Redirect, router } from "expo-router";
 
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
@@ -36,7 +37,7 @@ const Home = () => {
         <View className="flex flex-wrap flex-row justify-between">
 
         <CustomButton title="Donations"
-          handlePress={()=> router.push('#')}
+          handlePress={()=> router.push('/donations')}
           containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
           />
 

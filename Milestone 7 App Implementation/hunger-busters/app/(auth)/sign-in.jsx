@@ -33,7 +33,7 @@ const SignIn = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.36.235:3543/api/v1/auth', form);
+      const response = await axios.post('http://192.168.62.235:3543/api/v1/auth', form);
       //Please Replase your Ip address in here cmd ipconfig
       
       // Handle successful login
