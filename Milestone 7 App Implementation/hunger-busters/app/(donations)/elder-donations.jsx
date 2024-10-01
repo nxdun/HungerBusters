@@ -1,7 +1,6 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import axios from 'axios';
@@ -10,7 +9,7 @@ const donationOptions = [
   { id: 1, label: 'Monetary', value: 'monetary' },
   { id: 2, label: 'Food', value: 'food' },
   { id: 3, label: 'Clothing', value: 'clothing' },
-  { id: 4, label: 'Other', value: 'other' }
+  { id: 4, label: 'Medical Supplies', value: 'medical' }
 ];
 
 const ElderDonations = () => {
@@ -26,6 +25,7 @@ const ElderDonations = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [selectedDonations, setSelectedDonations] = useState([]);
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   const handleCheckboxChange = (value) => {
     setSelectedDonations((prev) => {
@@ -55,12 +55,25 @@ const ElderDonations = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.x.x:3543/api/v1/elder-donations', {
+      const response = await axios.post('http://192.168.162.235:3543/api/v1/elder-donations', {
         ...form,
         donationTypes: selectedDonations
       });
       console.log('Donation request submitted successfully:', response.data.message);
-      // Do something after successful submission (like navigation or form reset)
+      
+      // Show success modal
+      setIsSuccessModalVisible(true);
+      
+      // Reset form
+      setForm({
+        elderHomeName: '',
+        eldersCount: '',
+        elderHomeAddress: '',
+        contactNumber: '',
+        contactPerson: '',
+        specialRequests: ''
+      });
+      setSelectedDonations([]);
     } catch (error) {
       console.error('Error:', error);
       setError(error.response?.data?.message || 'An error occurred.');
@@ -139,6 +152,25 @@ const ElderDonations = () => {
             containerStyles="mt-7"
             isLoading={isSubmitting}
           />
+
+          {/* Success Modal */}
+          <Modal
+            transparent={true}
+            visible={isSuccessModalVisible}
+            animationType="slide"
+          >
+            <View className="flex-1 justify-center items-center bg-black bg-opacity-50">
+              <View className="bg-white rounded-lg p-6 w-4/5">
+                <Text className="text-lg text-center">Donation request submitted successfully!</Text>
+                <TouchableOpacity
+                  onPress={() => setIsSuccessModalVisible(false)}
+                  className="mt-4 p-2 bg-primary rounded-lg"
+                >
+                  <Text className="text-white text-center">Close</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
         </View>
       </ScrollView>
     </SafeAreaView>

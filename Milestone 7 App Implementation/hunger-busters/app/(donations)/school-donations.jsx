@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native'; // Import Alert here
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/FormField';
@@ -18,7 +18,6 @@ const SchoolDonations = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  // Function to handle document selection
   const pickDocument = async () => {
     try {
       const result = await DocumentPicker.getDocumentAsync({
@@ -29,16 +28,24 @@ const SchoolDonations = () => {
         ],
         copyToCacheDirectory: true
       });
-
-      if (result.type === 'success') {
-        setSelectedDocument(result);
-        console.log('Document selected:', result);
+  
+      console.log('Document selection result:', result); // Log result for debugging
+  
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedFile = result.assets[0]; // Extract the first document from the assets array
+        setSelectedDocument(selectedFile); // Set the selected document
+        console.log('Document selected:', selectedFile);
       } else {
-        console.log('Document selection canceled');
+        console.log('Document selection canceled or no assets found');
       }
     } catch (err) {
       console.error('Error picking document:', err);
     }
+  };
+
+  // Function to remove the selected document
+  const removeDocument = () => {
+    setSelectedDocument(null);
   };
 
   const submit = async () => {
@@ -72,14 +79,24 @@ const SchoolDonations = () => {
       });
 
       // Assuming you're posting the form data to this endpoint
-      const response = await axios.post('http://192.168.x.x:3543/api/v1/school-donations', formData, {
+      const response = await axios.post('http://192.168.162.235:3543/api/v1/school-donations', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
 
       console.log('Donation form submitted successfully:', response.data.message);
-      // Do something after successful submission (like navigation or form reset)
+      // Show success alert
+      Alert.alert('Success', 'Donation request submitted successfully.');
+
+      // Reset form after successful submission
+      setForm({
+        schoolName: '',
+        contactNumber: '',
+        principalName: '',
+        address: ''
+      });
+      setSelectedDocument(null); // Reset selected document
     } catch (error) {
       console.error('Error:', error);
       setError(error.response?.data?.message || 'An error occurred.');
@@ -124,11 +141,18 @@ const SchoolDonations = () => {
           />
 
           {/* Document Upload Section */}
-          <TouchableOpacity onPress={pickDocument} className="mt-7 bg-secondary p-4 rounded-lg">
-            <Text className="text-white text-center">
-              {selectedDocument ? `Selected File: ${selectedDocument.name}` : 'Upload Document'}
-            </Text>
-          </TouchableOpacity>
+          {!selectedDocument ? (
+            <TouchableOpacity onPress={pickDocument} className="mt-7 bg-secondary p-4 rounded-lg">
+              <Text className="text-white text-center">Upload Document</Text>
+            </TouchableOpacity>
+          ) : (
+            <View className="mt-7">
+              <Text className="text-white text-center mb-2">Selected File: {selectedDocument.name}</Text>
+              <TouchableOpacity onPress={removeDocument} className="bg-red-500 p-3 rounded-lg">
+                <Text className="text-white text-center">Remove Document</Text>
+              </TouchableOpacity>
+            </View>
+          )}
 
           {/* Accepted file types message */}
           <Text className="text-gray-300 text-sm mt-2 text-center">
