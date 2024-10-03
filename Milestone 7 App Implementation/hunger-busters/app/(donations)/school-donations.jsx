@@ -79,7 +79,7 @@ const SchoolDonations = () => {
       });
 
       // Assuming you're posting the form data to this endpoint
-      const response = await axios.post('http://192.168.162.235:3543/api/v1/school-donations', formData, {
+      const response = await axios.post('http://192.168.113.235:3543/api/v1/school-donations', formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
@@ -155,6 +155,9 @@ const SchoolDonations = () => {
           )}
 
           {/* Accepted file types message */}
+          <Text className="text-gray-300 text-sm mt-2 text-center">
+            Document name: schoolName.Docx/Doc/Pdf
+          </Text>
           <Text className="text-gray-300 text-sm mt-2 text-center">
             Accepted formats: PDF, DOC, DOCX
           </Text>

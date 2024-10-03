@@ -55,7 +55,7 @@ const ElderDonations = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.162.235:3543/api/v1/elder-donations', {
+      const response = await axios.post('http://192.168.173.235:3543/api/v1/elder-donations', {
         ...form,
         donationTypes: selectedDonations
       });

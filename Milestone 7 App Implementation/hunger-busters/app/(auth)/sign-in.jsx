@@ -45,7 +45,7 @@ const SignIn = () => {
       
       // Redirect based on user role
       if (role === 'admin') {
-        router.replace('/school-donations');
+        router.replace('/admin-dashboard');
       } else if (role === 'expert') {
         router.replace('/expert-dashboard'); 
       } else {
