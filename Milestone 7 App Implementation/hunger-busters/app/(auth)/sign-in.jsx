@@ -1,6 +1,6 @@
-import { View, Text, ScrollView, Image } from 'react-native'
-import { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { View, Text, ScrollView, Image } from 'react-native';
+import { useState } from 'react';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { images } from '../../constants';
 import FormField from '../../components/FormField';
@@ -10,14 +10,13 @@ import { Link } from 'expo-router';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 
-
 const SignIn = () => {
-  const [ form, setForm ] = useState({
+  const [form, setForm] = useState({
     email: '',
     password: ''
-  })
+  });
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
@@ -26,22 +25,34 @@ const SignIn = () => {
   const submit = async () => {
     setIsSubmitting(true);
     setError('');
-
+  
     // Validate form fields
     if (!form.email || !form.password) {
       setError('All fields are required.');
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
       const response = await axios.post(`${apiUrl}/api/v1/auth`, form);
-      //WARN : Please Replase your Ip address in here cmd ipconfig
+ 
+      // Log the full response
+      console.log('Response:', response.data);
+  
+      // Adjust based on your actual response structure
+      const { role } = response.data.data.user; 
+      
       // Handle successful login
       console.log('Login successful:', response.data.message);
-      // Store the token if needed, e.g., using AsyncStorage or context
-      // Redirect to the home screen
-      router.replace('/home');
+      
+      // Redirect based on user role
+      if (role === 'admin') {
+        router.replace('/admin-dashboard');
+      } else if (role === 'expert') {
+        router.replace('/expert-dashboard'); 
+      } else {
+        router.replace('/home'); // Default redirect for regular users
+      }
     } catch (error) {
       console.error('Error:', error);
       setError(error.response?.data?.message || 'An error occurred.');
@@ -49,6 +60,7 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -70,22 +82,22 @@ const SignIn = () => {
             otherStyles="mt-7"
           />
           {error ? <Text className="text-red-500">{error}</Text> : null}
-            <CustomButton 
-              title = "Sign In"
-              handlePress={submit}
-              containerStyles="mt-7"
-              isLoading={isSubmitting}
-            />
-            <View className="justify-center pt-5 flex-row gap-2">
-              <Text className="text-lg text-gray-100 font-pregular">
-                Don't have an account?
-              </Text>
-              <Link href="/sign-up" className="text-lg font-psemibold text-secondary ">Sign Up </Link>
-            </View>
+          <CustomButton 
+            title="Sign In"
+            handlePress={submit}
+            containerStyles="mt-7"
+            isLoading={isSubmitting}
+          />
+          <View className="justify-center pt-5 flex-row gap-2">
+            <Text className="text-lg text-gray-100 font-pregular">
+              Don't have an account?
+            </Text>
+            <Link href="/sign-up" className="text-lg font-psemibold text-secondary">Sign Up</Link>
+          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
-  )
+  );
 }
 
-export default SignIn
+export default SignIn;

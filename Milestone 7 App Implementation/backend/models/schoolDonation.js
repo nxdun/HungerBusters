@@ -1,4 +1,3 @@
-// models/SchoolDonation.js
 const mongoose = require('mongoose');
 
 // Define the schema for school donation request
@@ -22,6 +21,10 @@ const SchoolDonationSchema = new mongoose.Schema({
   document: {
     type: String, // This will store the file path or URL
     required: true,
+  },
+  approved: {
+    type: Boolean,
+    default: false, // Default value is false
   },
 }, { timestamps: true });
 

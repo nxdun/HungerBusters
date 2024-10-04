@@ -1,4 +1,3 @@
-// routes/schoolDonations.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
@@ -32,11 +31,40 @@ router.post('/', upload.single('studentDetailsFile'), async (req, res) => {
       principalName,
       address,
       document,
+      approved: false // Set default approval status
     });
 
     await newDonation.save();
 
     res.status(201).json({ message: 'Donation request submitted successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
+// Route to handle GET request to fetch all school donations
+router.get('/', async (req, res) => {
+  try {
+    const donations = await SchoolDonation.find(); // Fetch all donations
+    res.status(200).json(donations);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
+// Route to approve a school donation request
+router.put('/:id/approve', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const donation = await SchoolDonation.findByIdAndUpdate(id, { approved: true }, { new: true }); // Approve the donation
+
+    if (!donation) {
+      return res.status(404).json({ message: 'Donation request not found.' });
+    }
+
+    res.status(200).json({ message: 'Donation request approved successfully.', donation });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error. Please try again later.' });

@@ -50,7 +50,7 @@ const Home = () => {
           containerStyles="w-[180px] h-[200px] bg-yellow-200 rounded-xl shadow-md m-2" 
           />
           <CustomButton title="Information"
-          handlePress={()=> router.push('#')}
+          handlePress={()=> router.push('/admin-dashboard')}
           containerStyles="w-[180px] h-[200px] bg-red-400 rounded-xl shadow-md m-2" 
           />
     

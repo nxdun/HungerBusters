@@ -33,7 +33,7 @@ const SignUp = () => {
     const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
     try {
-      // Use the dynamic public IP address in the request URL
+      // uSE ENVIROMENT VARIABLE TO SET DYNAMIC URL
       const response = await axios.post(`${apiUrl}/api/v1/users`, form);
       console.log('User created successfully:', response.data.message);
       router.replace('/sign-in');
