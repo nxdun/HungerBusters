@@ -20,6 +20,8 @@ const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState('');
   const router = useRouter();
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  
 
   const submit = async () => {
     setIsSubmitting(true);
@@ -33,9 +35,8 @@ const SignIn = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.62.235:3543/api/v1/auth', form);
-      //Please Replase your Ip address in here cmd ipconfig
-      
+      const response = await axios.post(`${apiUrl}/api/v1/auth`, form);
+      //WARN : Please Replase your Ip address in here cmd ipconfig
       // Handle successful login
       console.log('Login successful:', response.data.message);
       // Store the token if needed, e.g., using AsyncStorage or context

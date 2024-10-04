@@ -24,6 +24,11 @@ app.use(cors({
 
 app.use(helmet()); 
 
+//test route
+app.get('/', (req, res) => {
+    res.send('Hi From Hunger Busters API v1 \n;]');
+});
+
 //Routes
 app.use('/api/v1/users', UserRoutes);
 
