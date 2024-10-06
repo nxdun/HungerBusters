@@ -6,6 +6,8 @@ import { Redirect, router } from "expo-router";
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
 
+import ShaderCanvas from '../shaderCanvas.jsx';
+
 const Home = () => {
 
 
@@ -35,6 +37,7 @@ const Home = () => {
           
             {/* Grid containing 4 buttons */}
         <View className="flex flex-wrap flex-row justify-between">
+        <ShaderCanvas />
 
         <CustomButton title="Donations"
           handlePress={()=> router.push('/donations')}
