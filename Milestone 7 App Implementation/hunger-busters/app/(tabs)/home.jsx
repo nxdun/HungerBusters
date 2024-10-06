@@ -1,16 +1,14 @@
 import { View, Text, Image, ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import React from 'react'
-import { Redirect, router } from "expo-router";
+import { router } from "expo-router";
 
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
-
 import ShaderCanvas from '../shaderCanvas.jsx';
+import { MaterialIcons } from '@expo/vector-icons'; // for the icon
 
 const Home = () => {
-
-
   return (
     <SafeAreaView>
       <ScrollView>
@@ -33,35 +31,42 @@ const Home = () => {
               />
             </View>
           </View>
-          </View>
-          
-            {/* Grid containing 4 buttons */}
-        <View className="flex flex-wrap flex-row justify-between">
-        <ShaderCanvas />
-
-        <CustomButton title="Donations"
-          handlePress={()=> router.push('/donations')}
-          containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
-          />
-
-          <CustomButton title="Experts"
-          handlePress={()=> router.push('#')}
-          containerStyles="w-[180px] h-[200px] bg-sky-950 text-white rounded-xl shadow-md m-2" 
-          />
-          <CustomButton title="Health"
-          handlePress={()=> router.push('#')}
-          containerStyles="w-[180px] h-[200px] bg-yellow-200 rounded-xl shadow-md m-2" 
-          />
-          <CustomButton title="Information"
-          handlePress={()=> router.push('/admin-dashboard')}
-          containerStyles="w-[180px] h-[200px] bg-red-400 rounded-xl shadow-md m-2" 
-          />
-    
         </View>
           
-        </ScrollView>
-  </SafeAreaView>
+        {/* Grid containing 4 buttons */}
+        <View className="flex flex-wrap flex-row justify-between">
+          <ShaderCanvas />
+
+          <CustomButton 
+            title="Donations"
+            handlePress={() => router.push('/donations')}
+            containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
+          />
+
+          <CustomButton 
+            title="Experts"
+            handlePress={() => router.push('#')}
+            containerStyles="w-[180px] h-[200px] bg-sky-950 text-white rounded-xl shadow-md m-2" 
+          />
+
+          <CustomButton 
+            title="Health"
+            handlePress={() => router.push('#')}
+            containerStyles="w-[180px] h-[200px] bg-yellow-200 rounded-xl shadow-md m-2" 
+          />
+
+          {/* New button for viewing all foods */}
+          <CustomButton 
+            title="View Foods"
+            handlePress={() => router.push('/foods')}
+            containerStyles="w-[180px] h-[200px] bg-green-500 rounded-xl shadow-md m-2" 
+            icon={<MaterialIcons name="restaurant" size={24} color="white" />}
+          />
+        </View>
+          
+      </ScrollView>
+    </SafeAreaView>
   )
 }
 
-export default Home
+export default Home;
