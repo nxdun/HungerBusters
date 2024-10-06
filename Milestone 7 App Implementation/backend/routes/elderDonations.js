@@ -61,5 +61,38 @@ router.put('/:id/approve', async (req, res) => {
   }
 });
 
+// Route to unapprove an elder donation request
+router.put('/:id/unapprove', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const donation = await ElderDonation.findByIdAndUpdate(id, { approved: false }, { new: true });
+    if (!donation) {
+      return res.status(404).json({ message: 'Donation not found' });
+    }
+    res.status(200).json({ message: 'Donation unapproved', data: donation });
+  } catch (error) {
+    console.error('Error unapproving donation:', error);
+    res.status(500).json({ message: 'An error occurred while unapproving the donation.' });
+  }
+});
+
+
+// Route to delete an elder donation request
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const donation = await ElderDonation.findByIdAndDelete(id);
+
+    if (!donation) {
+      return res.status(404).json({ message: 'Donation request not found.' });
+    }
+
+    res.status(200).json({ message: 'Donation request deleted successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
 // Export the router
 module.exports = router;

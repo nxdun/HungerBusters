@@ -71,4 +71,38 @@ router.put('/:id/approve', async (req, res) => {
   }
 });
 
+// Route to unapprove a school donation request
+router.put('/:id/unapprove', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const donation = await SchoolDonation.findByIdAndUpdate(id, { approved: false }, { new: true }); // Unapprove the donation
+
+    if (!donation) {
+      return res.status(404).json({ message: 'Donation request not found.' });
+    }
+
+    res.status(200).json({ message: 'Donation request unapproved successfully.', donation });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
+// Route to delete a school donation request
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const donation = await SchoolDonation.findByIdAndDelete(id);
+
+    if (!donation) {
+      return res.status(404).json({ message: 'Donation request not found.' });
+    }
+
+    res.status(200).json({ message: 'Donation request deleted successfully.' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error. Please try again later.' });
+  }
+});
+
 module.exports = router;

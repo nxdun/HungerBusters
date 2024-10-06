@@ -60,6 +60,51 @@ const DonationRequests = () => {
     );
   };
 
+  const unapproveRequest = async (id, type) => {
+    Alert.alert(
+      "Confirm Unapproval",
+      "Are you sure you want to unapprove this donation request?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: async () => {
+          try {
+            await axios.put(`${apiUrl}/api/v1/${type}-donations/${id}/unapprove`);
+            setRequests(prevRequests => 
+              prevRequests.map(request => 
+                request._id === id ? { ...request, approved: false } : request
+              )
+            );
+            Alert.alert("Success", "You have unapproved the donation request.");
+          } catch (err) {
+            Alert.alert("Error", "Failed to unapprove the donation request.");
+            console.error('Error unapproving request:', err);
+          }
+        }}
+      ]
+    );
+  };
+
+  const deleteRequest = async (id, type) => {
+    Alert.alert(
+      "Confirm Deletion",
+      "Are you sure you want to delete this donation request?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: async () => {
+          console.log(`Deleting from: ${apiUrl}/api/v1/${type}-donations/${id}`);
+          try {
+            await axios.delete(`${apiUrl}/api/v1/${type}-donations/${id}`);
+            setRequests(prevRequests => prevRequests.filter(request => request._id !== id));
+            Alert.alert("Success", "Donation request deleted successfully.");
+          } catch (err) {
+            Alert.alert("Error", "Failed to delete the donation request.");
+            console.error('Error deleting request:', err);
+          }
+        }}
+      ]
+    );
+  };
+
   const filteredRequests = requests.filter(request => {
     const isApproved = filter === 'approved' ? request.approved : true;
     const isPending = filter === 'pending' ? !request.approved : true;
@@ -76,7 +121,15 @@ const DonationRequests = () => {
         {item.type === 'school' ? item.schoolName : item.elderHomeName}
       </Text>
       {item.approved ? (
-        <Text className="text-green-500 font-semibold mt-2">Approved</Text>
+        <>
+          <Text className="text-green-500 font-semibold mt-2">Approved</Text>
+          <TouchableOpacity
+            className="bg-yellow-500 py-2 px-4 rounded-lg mt-3"
+            onPress={() => unapproveRequest(item._id, item.type)}
+          >
+            <Text className="text-white text-center font-semibold">Unapprove Request</Text>
+          </TouchableOpacity>
+        </>
       ) : (
         <TouchableOpacity
           className="bg-green-500 py-3 px-5 rounded-lg mt-3 transition-transform active:scale-95"
@@ -85,6 +138,14 @@ const DonationRequests = () => {
           <Text className="text-white text-center font-semibold">Approve Request</Text>
         </TouchableOpacity>
       )}
+
+      {/* Delete Button */}
+      <TouchableOpacity
+        className="bg-red-500 py-2 px-4 rounded-lg mt-3"
+        onPress={() => deleteRequest(item._id, item.type)}
+      >
+        <Text className="text-white text-center font-semibold">Delete Request</Text>
+      </TouchableOpacity>
     </View>
   );
 
