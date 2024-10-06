@@ -1,28 +1,29 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import axios from 'axios';
+import { MaterialIcons } from '@expo/vector-icons';
 
 const DonationRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('all'); // New filter state
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
-  // Fetch donation requests from both APIs
   const fetchDonationRequests = async () => {
     try {
       const [schoolResponse, elderResponse] = await Promise.all([
         axios.get(`${apiUrl}/api/v1/school-donations`),
         axios.get(`${apiUrl}/api/v1/elder-donations`),
       ]);
-      
-      // Combine both responses into one array
+
       const combinedRequests = [
         ...schoolResponse.data.map(request => ({ ...request, type: 'school' })),
         ...elderResponse.data.map(request => ({ ...request, type: 'elder' })),
       ];
 
-      setRequests(combinedRequests); // Set the fetched requests
+      setRequests(combinedRequests);
       setLoading(false);
     } catch (err) {
       setError('Failed to load donation requests.');
@@ -32,35 +33,49 @@ const DonationRequests = () => {
   };
 
   useEffect(() => {
-    fetchDonationRequests(); // Call fetch on component mount
+    fetchDonationRequests();
   }, []);
 
-  // Function to approve a donation request
   const approveRequest = async (id, type) => {
-    try {
-      await axios.put(`${apiUrl}/api/v1/${type}-donations/${id}/approve`);
-      setRequests((prevRequests) => 
-        prevRequests.map(request => 
-          request._id === id ? { ...request, approved: true } : request
-        )
-      );
-      Alert.alert("Success", "You have approved the donation request.");
-    } catch (err) {
-      Alert.alert("Error", "Failed to approve the donation request.");
-      console.error('Error approving request:', err);
-    }
+    Alert.alert(
+      "Confirm Approval",
+      "Are you sure you want to approve this donation request?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "OK", onPress: async () => {
+          try {
+            await axios.put(`${apiUrl}/api/v1/${type}-donations/${id}/approve`);
+            setRequests(prevRequests => 
+              prevRequests.map(request => 
+                request._id === id ? { ...request, approved: true } : request
+              )
+            );
+            Alert.alert("Success", "You have approved the donation request.");
+          } catch (err) {
+            Alert.alert("Error", "Failed to approve the donation request.");
+            console.error('Error approving request:', err);
+          }
+        }}
+      ]
+    );
   };
 
-  // Count the number of approved requests
-  const approvedCount = requests.filter(request => request.approved).length;
+  const filteredRequests = requests.filter(request => {
+    const isApproved = filter === 'approved' ? request.approved : true;
+    const isPending = filter === 'pending' ? !request.approved : true;
+    const matchesSearch = request.type === 'school' ? request.schoolName.toLowerCase().includes(searchQuery.toLowerCase()) : request.elderHomeName.toLowerCase().includes(searchQuery.toLowerCase());
+    return (isApproved && isPending) && matchesSearch;
+  });
 
-  // Render each donation request item
+  const approvedCount = filteredRequests.filter(request => request.approved).length;
+  const pendingCount = filteredRequests.filter(request => !request.approved).length;
+
   const renderItem = ({ item }) => (
     <View className={`bg-white rounded-lg p-5 mb-4 shadow-lg w-full transition-transform transform ${item.approved ? 'bg-green-50' : ''}`}>
       <Text className="text-lg font-semibold">
         {item.type === 'school' ? item.schoolName : item.elderHomeName}
       </Text>
-      {item.approved ? ( // Show approved message if the request is approved
+      {item.approved ? (
         <Text className="text-green-500 font-semibold mt-2">Approved</Text>
       ) : (
         <TouchableOpacity
@@ -93,17 +108,53 @@ const DonationRequests = () => {
     <View className="flex-1 p-7 bg-gray-100">
       <Text className="text-3xl font-extrabold mb-6 text-center text-gray-800">Donation Requests</Text>
       
-      {/* Approved Count Display */}
-      <View className="mb-4 p-4 bg-white rounded-lg shadow-md">
-        <Text className="text-lg font-semibold">Approved Requests: {approvedCount}</Text>
-        <Text className="text-sm text-gray-600">Total Approvals: {requests.length}</Text>
+      {/* Search Bar */}
+      <TextInput
+        placeholder="Search requests..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+        className="mb-4 p-2 border border-black rounded"
+      />
+
+      {/* Filter Options */}
+      <View className="flex-row mb-4">
+        <TouchableOpacity onPress={() => setFilter('all')} className={`p-2 rounded ${filter === 'all' ? 'bg-gray-300' : ''}`}>
+          <Text>All</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setFilter('approved')} className={`p-2 rounded ${filter === 'approved' ? 'bg-gray-300' : ''}`}>
+          <Text>Approved</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setFilter('pending')} className={`p-2 rounded ${filter === 'pending' ? 'bg-gray-300' : ''}`}>
+          <Text>Pending</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Approved, Pending, and Total Count Display */}
+      <View className="flex-row justify-between mb-4">
+        <View className="flex-1 bg-green-100 rounded-lg p-4 mr-2 shadow-md">
+          <MaterialIcons name="check-circle" size={24} color="green" />
+          <Text className="text-sm font-semibold mt-2">Approved</Text>
+          <Text className="text-2xl font-bold text-green-600">{approvedCount}</Text>
+        </View>
+
+        <View className="flex-1 bg-yellow-100 rounded-lg p-4 mx-2 shadow-md">
+          <MaterialIcons name="hourglass-empty" size={24} color="orange" />
+          <Text className="text-sm font-semibold mt-2">Pending</Text>
+          <Text className="text-2xl font-bold text-yellow-600">{pendingCount}</Text>
+        </View>
+
+        <View className="flex-1 bg-blue-100 rounded-lg p-4 ml-2 shadow-md">
+          <MaterialIcons name="dashboard" size={24} color="blue" />
+          <Text className="text-sm font-semibold mt-2">Total</Text>
+          <Text className="text-2xl font-bold text-blue-600">{filteredRequests.length}</Text>
+        </View>
       </View>
 
       <FlatList
-        data={requests}
+        data={filteredRequests}
         renderItem={renderItem}
-        keyExtractor={(item) => item._id} // Use _id for unique key
-        contentContainerStyle={{ paddingBottom: 20 }} // Add bottom padding for better UX
+        keyExtractor={(item) => item._id}
+        contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
   );
