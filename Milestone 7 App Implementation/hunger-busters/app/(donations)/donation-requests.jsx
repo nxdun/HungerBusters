@@ -7,11 +7,21 @@ const DonationRequests = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // Fetch donation requests from the API
+  // Fetch donation requests from both APIs
   const fetchDonationRequests = async () => {
     try {
-      const response = await axios.get('http://192.168.113.235:3543/api/v1/school-donations');
-      setRequests(response.data); // Set the fetched requests
+      const [schoolResponse, elderResponse] = await Promise.all([
+        axios.get('http://192.168.113.235:3543/api/v1/school-donations'),
+        axios.get('http://192.168.113.235:3543/api/v1/elder-donations'),
+      ]);
+      
+      // Combine both responses into one array
+      const combinedRequests = [
+        ...schoolResponse.data.map(request => ({ ...request, type: 'school' })),
+        ...elderResponse.data.map(request => ({ ...request, type: 'elder' })),
+      ];
+
+      setRequests(combinedRequests); // Set the fetched requests
       setLoading(false);
     } catch (err) {
       setError('Failed to load donation requests.');
@@ -25,9 +35,9 @@ const DonationRequests = () => {
   }, []);
 
   // Function to approve a donation request
-  const approveRequest = async (id) => {
+  const approveRequest = async (id, type) => {
     try {
-      await axios.put(`http://192.168.113.235:3543/api/v1/school-donations/${id}/approve`);
+      await axios.put(`http://192.168.113.235:3543/api/v1/${type}-donations/${id}/approve`);
       setRequests((prevRequests) => 
         prevRequests.map(request => 
           request._id === id ? { ...request, approved: true } : request
@@ -46,13 +56,15 @@ const DonationRequests = () => {
   // Render each donation request item
   const renderItem = ({ item }) => (
     <View className={`bg-white rounded-lg p-5 mb-4 shadow-lg w-full transition-transform transform ${item.approved ? 'bg-green-50' : ''}`}>
-      <Text className="text-lg font-semibold">{item.schoolName}</Text>
+      <Text className="text-lg font-semibold">
+        {item.type === 'school' ? item.schoolName : item.elderHomeName}
+      </Text>
       {item.approved ? ( // Show approved message if the request is approved
         <Text className="text-green-500 font-semibold mt-2">Approved</Text>
       ) : (
         <TouchableOpacity
           className="bg-green-500 py-3 px-5 rounded-lg mt-3 transition-transform active:scale-95"
-          onPress={() => approveRequest(item._id)}
+          onPress={() => approveRequest(item._id, item.type)}
         >
           <Text className="text-white text-center font-semibold">Approve Request</Text>
         </TouchableOpacity>
