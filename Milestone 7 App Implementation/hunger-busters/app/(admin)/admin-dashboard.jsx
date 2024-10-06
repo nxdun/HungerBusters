@@ -18,14 +18,16 @@ const AdminDashboard = () => {
         Manage your donation requests efficiently.
       </Text>
 
-      <View className="bg-white rounded-3xl p-8 shadow-lg w-full max-w-md mx-auto">
-        <TouchableOpacity
-          className="bg-green-400 py-4 px-6 rounded-lg w-full active:bg-green-500"
-          onPress={() => router.push('/donation-requests')} // Use onPress instead of handlePress
-        >
-          <Text className="text-white text-lg font-semibold text-center">Donation Requests</Text>
-        </TouchableOpacity>
-      </View>
+      <View className="bg-white  rounded-3xl p-6 shadow-lg w-full max-w-md mx-auto">
+          <TouchableOpacity
+            className="flex-row items-center justify-between bg-green-400 py-4 px-6 rounded-lg w-full active:bg-green-500"
+            onPress={() => router.push('/donation-requests')}
+          >
+            <Text className="text-white text-lg font-semibold">Donation Requests</Text>
+            <MaterialIcons name="attach-money" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+
     </View>
   );
 };
