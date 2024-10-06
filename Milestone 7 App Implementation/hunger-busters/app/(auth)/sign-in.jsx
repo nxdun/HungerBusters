@@ -19,6 +19,8 @@ const SignIn = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  
 
   const submit = async () => {
     setIsSubmitting(true);
@@ -32,8 +34,8 @@ const SignIn = () => {
     }
   
     try {
-      const response = await axios.post('http://192.168.250.235:3543/api/v1/auth', form);
-      
+      const response = await axios.post(`${apiUrl}/api/v1/auth`, form);
+ 
       // Log the full response
       console.log('Response:', response.data);
   

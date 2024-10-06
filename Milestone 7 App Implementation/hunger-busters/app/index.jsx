@@ -42,7 +42,12 @@ export default function App() {
           
           <Link href="/home" className="text-center mt-3">
             <Text className="text-sm font-pregular text-gray-100">
-              Go to Homepage From Here
+              (dev)Go to Homepage From Here
+            </Text>
+          </Link>
+          <Link href="/expert-dashboard" className="text-center mt-3">
+            <Text className="text-sm font-pregular text-gray-100">
+              (dev)Go to Expert page From Here
             </Text>
           </Link>
 
