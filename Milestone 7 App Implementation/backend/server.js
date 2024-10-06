@@ -10,6 +10,7 @@ const UserRoutes = require('./routes/users');
 const AuthRoutes = require('./routes/auth');
 const SchoolDonationRoutes = require('./routes/schooldonations');
 const ElderDonationRoutes = require('./routes/elderDonations');
+const foodRoutes = require('./routes/foodRoutes')
 
 // Connect to database
 connection();
@@ -36,7 +37,7 @@ app.use('/api/v1/auth', AuthRoutes);
 
 app.use('/api/v1/school-donations', SchoolDonationRoutes);
 app.use('/api/v1/elder-donations', ElderDonationRoutes);
-
+app.use('/api/foods', foodRoutes);
 
 
 // Define the port for the server to listen on
