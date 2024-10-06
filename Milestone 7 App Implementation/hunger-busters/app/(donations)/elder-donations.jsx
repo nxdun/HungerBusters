@@ -26,6 +26,7 @@ const ElderDonations = () => {
   const [error, setError] = useState('');
   const [selectedDonations, setSelectedDonations] = useState([]);
   const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
   const handleCheckboxChange = (value) => {
     setSelectedDonations((prev) => {
@@ -55,7 +56,7 @@ const ElderDonations = () => {
     }
 
     try {
-      const response = await axios.post('http://192.168.113.235:3543/api/v1/elder-donations', {
+      const response = await axios.post(`${apiUrl}/api/v1/elder-donations`, {
         ...form,
         donationTypes: selectedDonations
       });

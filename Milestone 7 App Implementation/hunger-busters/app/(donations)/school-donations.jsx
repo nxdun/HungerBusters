@@ -17,6 +17,7 @@ const SchoolDonations = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
   const pickDocument = async () => {
     try {
@@ -79,7 +80,7 @@ const SchoolDonations = () => {
       });
 
       // Assuming you're posting the form data to this endpoint
-      const response = await axios.post('http://192.168.113.235:3543/api/v1/school-donations', formData, {
+      const response = await axios.post(`${apiUrl}/api/v1/school-donations`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }

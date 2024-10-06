@@ -29,10 +29,14 @@ const ElderDonationSchema = new mongoose.Schema({
     type: [String],
     required: true
   },
+  approved: {
+    type: Boolean,
+    default: false // Default value is false
+  },
   createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = mongoose.model('elderDonation', ElderDonationSchema);
+module.exports = mongoose.model('ElderDonation', ElderDonationSchema);

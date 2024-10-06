@@ -6,13 +6,14 @@ const DonationRequests = () => {
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
   // Fetch donation requests from both APIs
   const fetchDonationRequests = async () => {
     try {
       const [schoolResponse, elderResponse] = await Promise.all([
-        axios.get('http://192.168.113.235:3543/api/v1/school-donations'),
-        axios.get('http://192.168.113.235:3543/api/v1/elder-donations'),
+        axios.get(`${apiUrl}/api/v1/school-donations`),
+        axios.get(`${apiUrl}/api/v1/elder-donations`),
       ]);
       
       // Combine both responses into one array
@@ -37,7 +38,7 @@ const DonationRequests = () => {
   // Function to approve a donation request
   const approveRequest = async (id, type) => {
     try {
-      await axios.put(`http://192.168.113.235:3543/api/v1/${type}-donations/${id}/approve`);
+      await axios.put(`${apiUrl}/api/v1/${type}-donations/${id}/approve`);
       setRequests((prevRequests) => 
         prevRequests.map(request => 
           request._id === id ? { ...request, approved: true } : request
