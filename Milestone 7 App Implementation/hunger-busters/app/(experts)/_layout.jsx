@@ -13,6 +13,12 @@ function ExpertLayout() {
                 headerShown: false,
               }}
             />
+            <Stack.Screen
+              name="pending-requests"
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack>
           <StatusBar backgroundColor="#ffffff"
             style="dark"

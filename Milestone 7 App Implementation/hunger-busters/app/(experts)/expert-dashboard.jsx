@@ -7,12 +7,14 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { BlurView } from "expo-blur"; // Import expo-blur
 import { Table, Row, Rows } from "react-native-table-component";
 import { images } from "../../constants";
 import ShaderCanvas from "../shaderCanvas";
+import { router } from "expo-router";
 
 const dummyRequestData = {
   approved: 12,
@@ -137,7 +139,8 @@ const ExpertDashboard = ({ navigation }) => {
       <View className="p-4 shadow-sm">
         <BlurView intensity={50} tint="light" className="rounded-b-3xl">
           <View className="flex-row justify-center items-center p-4">
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            {/* TODO :push back */}
+            <TouchableOpacity onPress={() => router.push("/")}>
               <Ionicons name="arrow-back" size={24} color="black" />
             </TouchableOpacity>
             <Text className="text-xl font-bold text-black flex-1 text-center">
@@ -155,6 +158,7 @@ const ExpertDashboard = ({ navigation }) => {
           <PendingApprovalCard
             description={item.description}
             image={item.image}
+
           />
         )}
         keyExtractor={(item) => item.id.toString()}
@@ -181,9 +185,8 @@ const PendingApprovalCard = ({ description, image }) => (
     <Image source={image} className="w-12 h-12 mb-3" resizeMode="contain" />
     <Text>{description}</Text>
     <TouchableOpacity className="bg-blue-500 mt-3 p-2 rounded">
-      <Text className="text-white">Approve</Text>
+      <Text className="text-white" onPress={() =>{router.push('/pending-requests')}}>Approve</Text>
     </TouchableOpacity>
   </View>
 );
-
 export default ExpertDashboard;
