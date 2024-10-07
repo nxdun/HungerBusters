@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, Image, FlatList, Button, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { BlurView } from 'expo-blur'; // Glassmorphism effect
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  ActivityIndicator,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { BlurView } from "expo-blur"; // Import expo-blur
+import { Table, Row, Rows } from "react-native-table-component";
 import { images } from "../../constants";
-import ShaderCanvas from '../shaderCanvas';
+import ShaderCanvas from "../shaderCanvas";
+
 const dummyRequestData = {
   approved: 12,
   total: 45,
@@ -12,16 +22,18 @@ const dummyRequestData = {
 };
 
 const dummyTableData = [
-  { date: '2023-09-01', status: 'Approved', expiry: '2023-12-01', delivery: 'Pending' },
-  { date: '2023-09-05', status: 'Expired', expiry: '2023-11-05', delivery: 'Completed' },
+  ["2023-09-01", "Approved", "2023-12-01", "Pending"],
+  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
 ];
 
 const dummyPendingApprovals = [
-  { id: 1, image: images.logo, description: 'Approval 1' },
-  { id: 2, image: images.logo, description: 'Approval 2' },
+  { id: 1, image: images.logo, description: "Approval 1" },
+  { id: 2, image: images.logo, description: "Approval 2" },
+  { id: 3, image: images.logo, description: "Approval 3" },
+  { id: 4, image: images.logo, description: "Approval 4" },
 ];
 
-const ExpertDashboard = () => {
+const ExpertDashboard = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [requestData, setRequestData] = useState({});
@@ -46,69 +58,110 @@ const ExpertDashboard = () => {
         setError(true);
         setLoading(false);
       }
-    }, 100);
+    }, 1500);
   };
 
   if (loading) {
     return (
-      <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F9FA' }}>
+      <SafeAreaView className="flex-1 justify-center items-center bg-white">
         <ActivityIndicator size="large" color="#0000ff" />
       </SafeAreaView>
     );
   }
 
+  // Function to render summary cards, table, and pending approvals
+  const renderDashboardContent = () => {
+    return (
+      <>
+        {/* Summary Cards */}
+        <View className="px-4 mt-3">
+          <View className="flex-row justify-between mb-4">
+            <SummaryCard
+              title="Approved Requests"
+              value={requestData.approved}
+              color="bg-green-100"
+            />
+            <SummaryCard
+              title="Total Requests"
+              value={requestData.total}
+              color="bg-yellow-200"
+            />
+          </View>
+          <View className="flex-row justify-between">
+            <SummaryCard
+              title="Expired Requests"
+              value={requestData.expired}
+              color="bg-red-200"
+            />
+            <SummaryCard
+              title="Pending Requests"
+              value={requestData.pending}
+              color="bg-teal-300"
+            />
+          </View>
+        </View>
+
+        {/* Table Section */}
+        <View className="mt-5 bg-white/80 p-3 rounded-2xl shadow">
+          <Table borderStyle={{ borderWidth: 1, borderColor: "#DDDDDD" }}>
+            <Row
+              data={["Date", "Status", "Expiry", "Delivery"]}
+              style={{ height: 40, backgroundColor: "#f1f1f1" }}
+              textStyle={{
+                fontWeight: "600",
+                textAlign: "center",
+                color: "#333",
+              }}
+            />
+            <Rows
+              data={tableData}
+              textStyle={{ margin: 6, textAlign: "center", color: "#000" }}
+            />
+          </Table>
+        </View>
+
+        {/* Pending Approvals */}
+        <View className="mt-5 px-4">
+          <Text className="text-lg font-semibold mb-2">Pending Approvals</Text>
+          <View className="h-1 bg-black mb-2"></View>
+        </View>
+      </>
+    );
+  };
+
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#EFEFEF' }}>
-      <ShaderCanvas/>
+    <SafeAreaView className="flex-1 bg-pink">
+      <ShaderCanvas />
+
+      {/* Top Bar with Glassmorphism */}
+      <View className="p-4 shadow-sm">
+        <BlurView intensity={50} tint="light" className="rounded-b-3xl">
+          <View className="flex-row justify-center items-center p-4">
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+            <Text className="text-xl font-bold text-black flex-1 text-center">
+              Experts Dashboard
+            </Text>
+          </View>
+        </BlurView>
+      </View>
+
+      {/* Use FlatList to render everything */}
       <FlatList
+        ListHeaderComponent={renderDashboardContent} // Renders summary and table
         data={pendingApprovals}
-        ListHeaderComponent={
-          <>
-            {/* Top Bar */}
-            <View style={{ paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff' }}>
-              <Text style={{ fontSize: 20, fontWeight: 'bold' }}>Experts Dashboard</Text>
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                <Text style={{ marginRight: 10 }}>09:45 AM</Text>
-                {/* Add battery and connection icons here */}
-              </View>
-            </View>
-
-            {/* Summary Cards */}
-            <View style={{ padding: 16 }}>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 16 }}>
-                <SummaryCard title="Approved Requests" value={requestData.approved} color="#E5F4E3" />
-                <SummaryCard title="Total Requests" value={requestData.total} color="#F9E6A0" />
-              </View>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <SummaryCard title="Expired Requests" value={requestData.expired} color="#F9B3B3" />
-                <SummaryCard title="Pending Requests" value={requestData.pending} color="#B4C7C5" />
-              </View>
-
-              {/* Table Section */}
-              <View style={{ marginTop: 20, backgroundColor: '#EDEFF2', padding: 12, borderRadius: 8 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-around', marginBottom: 10 }}>
-                  <Text style={{ fontWeight: '600' }}>Date</Text>
-                  <Text style={{ fontWeight: '600' }}>Status</Text>
-                  <Text style={{ fontWeight: '600', color: '#FF4B4B' }}>Expiry</Text>
-                  <Text style={{ fontWeight: '600' }}>Delivery</Text>
-                </View>
-                {tableData.map((row, index) => (
-                  <TableRow key={index} {...row} />
-                ))}
-              </View>
-
-              {/* Pending Approvals */}
-              <View style={{ marginTop: 20 }}>
-                <Text style={{ fontSize: 18, fontWeight: '600', marginBottom: 10 }}>Pending Approvals</Text>
-                <View style={{ height: 2, backgroundColor: '#000', width: '100%', marginBottom: 10 }} />
-              </View>
-            </View>
-          </>
-        }
-        renderItem={({ item }) => <PendingApprovalCard image={item.image} description={item.description} />}
+        renderItem={({ item }) => (
+          <PendingApprovalCard
+            description={item.description}
+            image={item.image}
+          />
+        )}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
-        columnWrapperStyle={{ justifyContent: 'space-between', paddingHorizontal: 16 }}
+        columnWrapperStyle={{ justifyContent: "space-between" }}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 100 }}
       />
     </SafeAreaView>
   );
@@ -116,29 +169,19 @@ const ExpertDashboard = () => {
 
 // Summary Card Component
 const SummaryCard = ({ title, value, color }) => (
-  <View style={{ backgroundColor: color, padding: 20, borderRadius: 10, width: '47%', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 } }}>
-    <Text style={{ fontSize: 18, fontWeight: '700' }}>{value}</Text>
-    <Text style={{ fontSize: 16, color: '#666', marginTop: 5 }}>{title}</Text>
+  <View className={`p-5 rounded-xl w-[47%] items-center shadow-sm ${color}`}>
+    <Text className="text-lg font-semibold">{value}</Text>
+    <Text className="text-base text-gray-600 mt-2">{title}</Text>
   </View>
 );
 
-// TableRow Component
-const TableRow = ({ date, status, expiry, delivery }) => (
-  <View style={{ flexDirection: 'row', justifyContent: 'space-around', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: '#DDD' }}>
-    <Text>{date}</Text>
-    <Text>{status}</Text>
-    <Text style={{ color: '#FF4B4B' }}>{expiry}</Text>
-    <Text>{delivery}</Text>
-  </View>
-);
-
-// Pending Approval Card Component
-const PendingApprovalCard = ({ image, description }) => (
-  <View style={{ backgroundColor: '#FFF', padding: 15, marginBottom: 15, borderRadius: 12, width: '47%', shadowColor: '#000', shadowOpacity: 0.1, shadowOffset: { width: 0, height: 2 } }}>
-    <Image source={image} style={{ width: '100%', height: 120, borderRadius: 10 }} resizeMode="contain" />
-    <Text style={{ marginTop: 10, fontSize: 16, fontWeight: '500' }}>{description}</Text>
-    <TouchableOpacity style={{ marginTop: 8 }}>
-      <Button title="Browse" />
+// Pending Approval Card Component with image and button
+const PendingApprovalCard = ({ description, image }) => (
+  <View className="bg-white p-5 mb-5 rounded-xl w-[47%] items-center shadow-sm">
+    <Image source={image} className="w-12 h-12 mb-3" resizeMode="contain" />
+    <Text>{description}</Text>
+    <TouchableOpacity className="bg-blue-500 mt-3 p-2 rounded">
+      <Text className="text-white">Approve</Text>
     </TouchableOpacity>
   </View>
 );
