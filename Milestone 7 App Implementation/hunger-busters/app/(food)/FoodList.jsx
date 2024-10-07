@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, Alert } from 'react-native';
+import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
 
@@ -37,15 +37,15 @@ const FoodList = () => {
   };
 
   const renderFoodItem = ({ item }) => (
-    <View style={{ padding: 10, margin: 5, backgroundColor: 'lightgray', borderRadius: 5 }}>
-      <Text>{item.name}</Text>
-      <Text>{item.name}</Text>
+    <View style={styles.foodCard}>
+      <Text style={styles.foodName}>{item.name}</Text>
       <Button
         title="View Details"
         onPress={() => {
           // Navigate to FoodDetails with foodId as a parameter
-          router.push(`/FoodDetails/${item._id}`); // Updated to use path parameter
+          router.push(`/FoodDetails/${item._id}`);
         }}
+        color="#4A90E2" // Consistent button color
       />
       <Button
         title="Delete"
@@ -57,33 +57,92 @@ const FoodList = () => {
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text>Loading foods...</Text>
+        <Text style={styles.loadingText}>Loading foods...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ color: 'red' }}>{error}</Text>
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
       </View>
     );
   }
 
   return (
-    <View>
-      <Text style={{ fontSize: 20, textAlign: 'center', marginVertical: 10 }}>All Foods</Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>All Foods</Text>
       <Button title="Add New Food" onPress={() => router.push('/AddFood')} />
       <FlatList
         data={foods}
         renderItem={renderFoodItem}
         keyExtractor={item => item._id}
-        ListEmptyComponent={<Text style={{ textAlign: 'center' }}>No foods available.</Text>}
+        ItemSeparatorComponent={() => <View style={styles.separator} />} // Separator between items
+        ListEmptyComponent={<Text style={styles.emptyText}>No foods available.</Text>}
       />
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    padding: 20,
+    backgroundColor: '#fff',
+    flex: 1,
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 10,
+    color: '#333',
+  },
+  foodCard: {
+    padding: 15,
+    marginVertical: 5,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2, // For Android shadow effect
+  },
+  foodName: {
+    fontSize: 18,
+    fontWeight: '600',
+    marginBottom: 10,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#4A90E2',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+  },
+  separator: {
+    height: 10,
+  },
+  emptyText: {
+    textAlign: 'center',
+    fontSize: 16,
+    color: '#888',
+  },
+});
 
 export default FoodList;
