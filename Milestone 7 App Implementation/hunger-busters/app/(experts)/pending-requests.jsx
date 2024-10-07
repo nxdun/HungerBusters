@@ -9,9 +9,10 @@ import ShaderCanvas from "../shaderCanvas";
 import CustomButton from "../../components/CustomButton";
 import { router } from "expo-router";
 
-// component for the request title view with navigation and editable text
+// Reusable component for the request title view with navigation and editable text
 const RequestTitle = ({ title, onEdit }) => (
-  <BlurView intensity={50} tint="light" className="rounded-b-3xl p-4">
+  <View className="p-3 shadow-sm">
+  <BlurView intensity={120} tint="light" className="rounded-b-3xl p-4">
     <View className="flex-row justify-center items-center">
       <TouchableOpacity onPress={() => router.push("/expert-dashboard")}>
         <Ionicons name="arrow-back" size={24} color="black" />
@@ -24,6 +25,7 @@ const RequestTitle = ({ title, onEdit }) => (
       </Text>
     </View>
   </BlurView>
+  </View>
 );
 
 const dummyRequest = {
@@ -97,7 +99,7 @@ const PendingRequests = () => {
 
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: 60 }}>
           {/* Image Carousel with blur background */}
-          <View className="items-center relative mt-8">
+          <View className="items-center relative mb-4">
             <TouchableOpacity
               style={{ position: 'absolute', left: 10, top: '50%', transform: [{ translateY: -12 }] }}
               onPress={prevImage}
@@ -175,7 +177,7 @@ const PendingRequests = () => {
           </BlurView>
 
           {/* Submit Button after tag assignment */}
-          <View className="mt-4 mb-11 px-4">
+          <View className="mt-4 mb-[70px] px-4">
             <CustomButton
               title="Submit"
               handlePress={handleApprove}

@@ -7,10 +7,9 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
-
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur"; // Import expo-blur
+import { BlurView } from "expo-blur";
 import { Table, Row, Rows } from "react-native-table-component";
 import { images } from "../../constants";
 import ShaderCanvas from "../shaderCanvas";
@@ -25,6 +24,10 @@ const dummyRequestData = {
 
 const dummyTableData = [
   ["2023-09-01", "Approved", "2023-12-01", "Pending"],
+  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
+  ["2023-08-05", "Expired", "2023-11-05", "Complete"],
+  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
+  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
   ["2023-09-05", "Expired", "2023-11-05", "Completed"],
 ];
 
@@ -136,8 +139,8 @@ const ExpertDashboard = ({ navigation }) => {
       <ShaderCanvas />
 
       {/* Top Bar with Glassmorphism */}
-      <View className="p-4 shadow-sm">
-        <BlurView intensity={50} tint="light" className="rounded-b-3xl">
+      <View className="p-1 shadow-sm">
+        <BlurView intensity={110} tint="light" className="rounded-b-3xl">
           <View className="flex-row justify-center items-center p-4">
             {/* TODO :push back */}
             <TouchableOpacity onPress={() => router.push("/")}>
@@ -149,7 +152,6 @@ const ExpertDashboard = ({ navigation }) => {
           </View>
         </BlurView>
       </View>
-
       {/* Use FlatList to render everything */}
       <FlatList
         ListHeaderComponent={renderDashboardContent} // Renders summary and table
