@@ -54,13 +54,10 @@ const Home = () => {
             handlePress={() => router.push('#')}
             containerStyles="w-[180px] h-[200px] bg-yellow-200 rounded-xl shadow-md m-2" 
           />
-
-          {/* New button for viewing all foods */}
           <CustomButton 
-            title="View Foods"
+            title="Food"
             handlePress={() => router.push('/foods')}
-            containerStyles="w-[180px] h-[200px] bg-green-500 rounded-xl shadow-md m-2" 
-            icon={<MaterialIcons name="restaurant" size={24} color="white" />}
+            containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
           />
         </View>
           

@@ -94,6 +94,21 @@ const TabsLayout = () => {
           )
          }}
          />
+        <Tabs.Screen
+         name="food"
+         options={{
+          title: 'food',
+          headerShown: false,
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon 
+              icon={icons.profile}
+              color={color}
+              name="food"
+              focused={focused}
+            />
+          )
+         }}
+         />
       </Tabs>
     </>
   )
