@@ -3,7 +3,7 @@ import { View, Text, Image, FlatList, Button, TouchableOpacity, ActivityIndicato
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur'; // Glassmorphism effect
 import { images } from "../../constants";
-
+import ShaderCanvas from '../shaderCanvas';
 const dummyRequestData = {
   approved: 12,
   total: 45,
@@ -59,6 +59,7 @@ const ExpertDashboard = () => {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#EFEFEF' }}>
+      <ShaderCanvas/>
       <FlatList
         data={pendingApprovals}
         ListHeaderComponent={

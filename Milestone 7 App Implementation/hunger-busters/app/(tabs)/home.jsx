@@ -5,7 +5,7 @@ import { router } from "expo-router";
 
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
-import ShaderCanvas from '../shaderCanvas.jsx';
+import ShaderCanvas from '../shaderCanvas';
 import { MaterialIcons } from '@expo/vector-icons'; // for the icon
 
 const Home = () => {
