@@ -8,26 +8,7 @@ import { images } from "../../constants";
 import ShaderCanvas from "../shaderCanvas";
 import CustomButton from "../../components/CustomButton";
 import { router } from "expo-router";
-
-// Reusable component for the request title view with navigation and editable text
-const RequestTitle = ({ title, onEdit }) => (
-  <View className="p-3 shadow-sm">
-  <BlurView intensity={120} tint="light" className="rounded-b-3xl p-4">
-    <View className="flex-row justify-center items-center">
-      <TouchableOpacity onPress={() => router.push("/expert-dashboard")}>
-        <Ionicons name="arrow-back" size={24} color="black" />
-      </TouchableOpacity>
-      <Text
-        className="text-xl font-bold text-black flex-1 text-center"
-        onPress={onEdit}
-      >
-        {title}
-      </Text>
-    </View>
-  </BlurView>
-  </View>
-);
-
+import TransparentTopBar from "../../components/TransparentTopBar"; // Importing the TransparentTopBar component
 const dummyRequest = {
   title: "Request title",
   submissionDate: "2024/08/12",
@@ -85,18 +66,18 @@ const PendingRequests = () => {
     }
   };
 
+  const handleBackPress = () => {
+    router.push("/expert-dashboard"); // Navigate back to home or any other page
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white relative">
       {/* Shader Background */}
       <ShaderCanvas />
 
       <View className="flex-grow">
-        {/* Request Title with reusable component */}
-        <RequestTitle
-          title={title}
-          onEdit={() => console.log("Editing title...")} // Add your title edit functionality here
-        />
-
+        {/* top bar reusable component */}
+        <TransparentTopBar title={title} onBackPress={handleBackPress} />
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: 60 }}>
           {/* Image Carousel with blur background */}
           <View className="items-center relative mb-4">

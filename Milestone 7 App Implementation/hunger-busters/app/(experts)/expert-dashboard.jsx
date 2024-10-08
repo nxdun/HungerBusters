@@ -1,19 +1,11 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  ActivityIndicator,
-  TouchableOpacity,
-  Image,
-} from "react-native";
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { BlurView } from "expo-blur";
 import { Table, Row, Rows } from "react-native-table-component";
 import { images } from "../../constants";
 import ShaderCanvas from "../shaderCanvas";
 import { router } from "expo-router";
+import TransparentTopBar from "../../components/TransparentTopBar"; // Importing the TransparentTopBar component
 
 const dummyRequestData = {
   approved: 12,
@@ -38,7 +30,7 @@ const dummyPendingApprovals = [
   { id: 4, image: images.logo, description: "Approval 4" },
 ];
 
-const ExpertDashboard = ({ navigation }) => {
+const ExpertDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [requestData, setRequestData] = useState({});
@@ -63,7 +55,11 @@ const ExpertDashboard = ({ navigation }) => {
         setError(true);
         setLoading(false);
       }
-    }, 1500);
+    }, 1000);
+  };
+
+  const handleBackPress = () => {
+    router.push("/"); // Navigate back to home or any other page
   };
 
   if (loading) {
@@ -81,52 +77,34 @@ const ExpertDashboard = ({ navigation }) => {
         {/* Summary Cards */}
         <View className="px-4 mt-3">
           <View className="flex-row justify-between mb-4">
-            <SummaryCard
-              title="Approved Requests"
-              value={requestData.approved}
-              color="bg-green-100"
-            />
-            <SummaryCard
-              title="Total Requests"
-              value={requestData.total}
-              color="bg-yellow-200"
-            />
+            <SummaryCard title="Approved Requests" value={requestData.approved} color="bg-green-100" />
+            <SummaryCard title="Total Requests" value={requestData.total} color="bg-yellow-200" />
           </View>
           <View className="flex-row justify-between">
-            <SummaryCard
-              title="Expired Requests"
-              value={requestData.expired}
-              color="bg-red-200"
-            />
-            <SummaryCard
-              title="Pending Requests"
-              value={requestData.pending}
-              color="bg-teal-300"
-            />
+            <SummaryCard title="Expired Requests" value={requestData.expired} color="bg-red-200" />
+            <SummaryCard title="Pending Requests" value={requestData.pending} color="bg-teal-300" />
           </View>
         </View>
 
         {/* Table Section */}
-        <View className="mt-5 bg-white/80 p-3 rounded-2xl shadow">
-          <Table borderStyle={{ borderWidth: 1, borderColor: "#DDDDDD" }}>
-            <Row
-              data={["Date", "Status", "Expiry", "Delivery"]}
-              style={{ height: 40, backgroundColor: "#f1f1f1" }}
-              textStyle={{
-                fontWeight: "600",
-                textAlign: "center",
-                color: "#333",
-              }}
-            />
-            <Rows
-              data={tableData}
-              textStyle={{ margin: 6, textAlign: "center", color: "#000" }}
-            />
-          </Table>
+        <View className="mt-5 p-3 rounded-2xl shadow">
+          <TouchableOpacity onPress={() => router.push('/analysis-dashboard')}>
+            <Table borderStyle={{ borderWidth: 1, borderColor: "#DDDDDD" }}>
+              <Row
+                data={["Date", "Status", "Expiry", "Delivery"]}
+                style={{ height: 40, backgroundColor: "#f1f1f1" }}
+                textStyle={{ fontWeight: "600", textAlign: "center", color: "#333" }}
+              />
+              <Rows
+                data={tableData}
+                textStyle={{ margin: 6, textAlign: "center", color: "#000" }}
+              />
+            </Table>
+          </TouchableOpacity>
         </View>
 
         {/* Pending Approvals */}
-        <View className="mt-5 px-4">
+        <View className="mt-5 p-4">
           <Text className="text-lg font-semibold mb-2">Pending Approvals</Text>
           <View className="h-1 bg-black mb-2"></View>
         </View>
@@ -138,36 +116,21 @@ const ExpertDashboard = ({ navigation }) => {
     <SafeAreaView className="flex-1 bg-pink">
       <ShaderCanvas />
 
-      {/* Top Bar with Glassmorphism */}
-      <View className="p-1 shadow-sm">
-        <BlurView intensity={110} tint="light" className="rounded-b-3xl">
-          <View className="flex-row justify-center items-center p-4">
-            {/* TODO :push back */}
-            <TouchableOpacity onPress={() => router.push("/")}>
-              <Ionicons name="arrow-back" size={24} color="black" />
-            </TouchableOpacity>
-            <Text className="text-xl font-bold text-black flex-1 text-center">
-              Experts Dashboard
-            </Text>
-          </View>
-        </BlurView>
-      </View>
+      {/* Using TransparentTopBar */}
+      <TransparentTopBar title="Experts Dashboard" onBackPress={handleBackPress} />
+
       {/* Use FlatList to render everything */}
       <FlatList
         ListHeaderComponent={renderDashboardContent} // Renders summary and table
         data={pendingApprovals}
         renderItem={({ item }) => (
-          <PendingApprovalCard
-            description={item.description}
-            image={item.image}
-
-          />
+          <PendingApprovalCard description={item.description} image={item.image} />
         )}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
         columnWrapperStyle={{ justifyContent: "space-between" }}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 100 }}
+        contentContainerStyle={{ paddingBottom: 100, paddingHorizontal: 10 }}
       />
     </SafeAreaView>
   );
@@ -187,8 +150,9 @@ const PendingApprovalCard = ({ description, image }) => (
     <Image source={image} className="w-12 h-12 mb-3" resizeMode="contain" />
     <Text>{description}</Text>
     <TouchableOpacity className="bg-blue-500 mt-3 p-2 rounded">
-      <Text className="text-white" onPress={() =>{router.push('/pending-requests')}}>Approve</Text>
+      <Text className="text-white" onPress={() => router.push('/pending-requests')}>Approve</Text>
     </TouchableOpacity>
   </View>
 );
+
 export default ExpertDashboard;

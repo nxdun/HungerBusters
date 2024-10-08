@@ -19,6 +19,12 @@ function ExpertLayout() {
                 headerShown: false,
               }}
             />
+            <Stack.Screen
+              name='analysis-dashboard'
+              options={{
+                headerShown: false,
+              }}
+            />
           </Stack>
           <StatusBar backgroundColor="#ffffff"
             style="dark"
