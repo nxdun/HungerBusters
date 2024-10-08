@@ -11,6 +11,7 @@ const AuthRoutes = require('./routes/auth');
 const SchoolDonationRoutes = require('./routes/schooldonations');
 const ElderDonationRoutes = require('./routes/elderDonations');
 const foodRoutes = require('./routes/foodRoutes')
+const FoodSubmissionRoutes = require('./routes/FoodSubmissionRoutes');
 
 // Connect to database
 connection();
@@ -32,12 +33,16 @@ app.get('/', (req, res) => {
 
 //Routes
 app.use('/api/v1/users', UserRoutes);
-
 app.use('/api/v1/auth', AuthRoutes);
-
 app.use('/api/v1/school-donations', SchoolDonationRoutes);
 app.use('/api/v1/elder-donations', ElderDonationRoutes);
 app.use('/api/foods', foodRoutes);
+app.use('/api/fsr', FoodSubmissionRoutes);
+
+//disable all other routes returns 404
+app.use((req, res) => {
+    res.status(404).send('Oopsie, 404 !');
+});
 
 
 // Define the port for the server to listen on

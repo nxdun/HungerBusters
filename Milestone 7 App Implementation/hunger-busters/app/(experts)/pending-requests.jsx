@@ -23,7 +23,7 @@ const dummyRequest = {
   ],
 };
 
-const timeOptions = [6, 12, 24, 1, 3, 7, 30, 60]; // Time options in hours and days
+const timeOptions = [6, 12, 24, 1, 3, 7, 30, 60]; 
 
 const PendingRequests = () => {
   const [selectedTag, setSelectedTag] = useState();
@@ -162,7 +162,7 @@ const PendingRequests = () => {
             <CustomButton
               title="Submit"
               handlePress={handleApprove}
-              containerStyles="w-full"
+              containerStyles="w-full mb-4"
               textStyles="text-lg"
             />
           </View>
