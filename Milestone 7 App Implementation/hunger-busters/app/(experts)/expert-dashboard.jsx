@@ -7,28 +7,7 @@ import ShaderCanvas from "../shaderCanvas";
 import { router } from "expo-router";
 import TransparentTopBar from "../../components/TransparentTopBar"; // Importing the TransparentTopBar component
 
-const dummyRequestData = {
-  approved: 12,
-  total: 45,
-  expired: 12,
-  pending: 12,
-};
-
-const dummyTableData = [
-  ["2023-09-01", "Approved", "2023-12-01", "Pending"],
-  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
-  ["2023-08-05", "Expired", "2023-11-05", "Complete"],
-  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
-  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
-  ["2023-09-05", "Expired", "2023-11-05", "Completed"],
-];
-
-const dummyPendingApprovals = [
-  { id: 1, image: images.logo, description: "Approval 1" },
-  { id: 2, image: images.logo, description: "Approval 2" },
-  { id: 3, image: images.logo, description: "Approval 3" },
-  { id: 4, image: images.logo, description: "Approval 4" },
-];
+const apiUrl = process.env.EXPO_PUBLIC_API_URL; // Assuming you're using environment variables
 
 const ExpertDashboard = () => {
   const [loading, setLoading] = useState(true);
@@ -41,21 +20,29 @@ const ExpertDashboard = () => {
     fetchData();
   }, []);
 
-  const fetchData = () => {
+  // Fetch data from the API
+  const fetchData = async () => {
     setLoading(true);
     setError(false);
-    setTimeout(() => {
-      const success = Math.random() > 0.3;
-      if (success) {
-        setRequestData(dummyRequestData);
-        setTableData(dummyTableData);
-        setPendingApprovals(dummyPendingApprovals);
-        setLoading(false);
-      } else {
-        setError(true);
-        setLoading(false);
-      }
-    }, 1000);
+    try {
+      const response = await fetch(`${apiUrl}/api/fsr/get/dashboard-data`);
+      const data = await response.json();
+
+      setRequestData({
+        approved: data.approved,
+        total: data.total,
+        expired: data.expired,
+        pending: data.pending,
+      });
+      setTableData(data.tableData);
+      setPendingApprovals(data.pendingApprovals);
+
+      setLoading(false);
+    } catch (error) {
+      console.error("Error fetching dashboard data:", error);
+      setError(true);
+      setLoading(false);
+    }
   };
 
   const handleBackPress = () => {
@@ -124,7 +111,7 @@ const ExpertDashboard = () => {
         ListHeaderComponent={renderDashboardContent} // Renders summary and table
         data={pendingApprovals}
         renderItem={({ item }) => (
-          <PendingApprovalCard description={item.description} image={item.image} />
+          <PendingApprovalCard description={item.description} image={item.images[0]} /> // Display the first image
         )}
         keyExtractor={(item) => item.id.toString()}
         numColumns={2}
@@ -147,7 +134,7 @@ const SummaryCard = ({ title, value, color }) => (
 // Pending Approval Card Component with image and button
 const PendingApprovalCard = ({ description, image }) => (
   <View className="bg-white p-5 mb-5 rounded-xl w-[47%] items-center shadow-sm">
-    <Image source={image} className="w-12 h-12 mb-3" resizeMode="contain" />
+    <Image source={{ uri: image }} className="w-12 h-12 mb-3" resizeMode="contain" />
     <Text>{description}</Text>
     <TouchableOpacity className="bg-blue-500 mt-3 p-2 rounded">
       <Text className="text-white" onPress={() => router.push('/pending-requests')}>Approve</Text>
