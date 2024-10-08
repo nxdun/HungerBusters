@@ -24,7 +24,6 @@ app.use(cors({
     origin: '*', // Allow all origins (for development; be specific in production)
   }));
 
-
 app.use(helmet()); 
 
 //test route
@@ -38,6 +37,9 @@ app.use('/api/v1/auth', AuthRoutes);
 app.use('/api/v1/school-donations', SchoolDonationRoutes);
 app.use('/api/v1/elder-donations', ElderDonationRoutes);
 app.use('/api/foods', foodRoutes);
+app.use('/api/fsr',FoodSubmissionRoutes);
+
+//please add a space before adding route to avoid conflict
 
 
 // Define the port for the server to listen on
