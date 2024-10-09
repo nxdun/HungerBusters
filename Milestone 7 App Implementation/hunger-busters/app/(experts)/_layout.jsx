@@ -14,7 +14,13 @@ function ExpertLayout() {
               }}
             />
             <Stack.Screen
-              name="pending-requests"
+              name="pending-requests/[imageId]"
+              options={{
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name='analysis-dashboard'
               options={{
                 headerShown: false,
               }}

@@ -12,6 +12,7 @@ const SchoolDonationRoutes = require('./routes/schooldonations');
 const ElderDonationRoutes = require('./routes/elderDonations');
 const foodRoutes = require('./routes/foodRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
+const FoodSubmissionRoutes = require('./routes/FoodSubmissionRoutes');
 
 // Connect to database
 connection();
@@ -23,7 +24,6 @@ app.use(cors({
     origin: '*', // Allow all origins (for development; be specific in production)
   }));
 
-
 app.use(helmet()); 
 
 //test route
@@ -33,13 +33,13 @@ app.get('/', (req, res) => {
 
 //Routes
 app.use('/api/v1/users', UserRoutes);
-
 app.use('/api/v1/auth', AuthRoutes);
-
 app.use('/api/v1/school-donations', SchoolDonationRoutes);
 app.use('/api/v1/elder-donations', ElderDonationRoutes);
 app.use('/api/foods', foodRoutes);
-app.use('/recipes', recipeRoutes);
+app.use('/api/fsr',FoodSubmissionRoutes);
+
+//please add a space before adding route to avoid conflict
 
 
 // Define the port for the server to listen on
