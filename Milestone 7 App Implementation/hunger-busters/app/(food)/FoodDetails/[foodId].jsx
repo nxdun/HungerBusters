@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Button, ActivityIndicator, Alert, StyleSheet, ScrollView, TextInput } from 'react-native';
+import { View, Text, Button, ActivityIndicator, Alert, StyleSheet, ScrollView, TextInput, Image } from 'react-native';
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { usePathname } from 'expo-router';
@@ -92,9 +92,22 @@ const FoodDetails = () => {
     );
   }
 
+  // Construct the image URL
+  const imageUrl = food.image ? `${apiUrl}/${food.image}` : null; // Assuming food.image contains the filename
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{food.name}</Text>
+      {imageUrl ? (
+        <Image 
+          source={{ uri: imageUrl }} 
+          style={styles.foodImage} 
+          resizeMode="cover" 
+          onError={() => console.error('Failed to load image')}
+        />
+      ) : (
+        <Text style={styles.noImageText}>Image not available</Text>
+      )}
       <Text style={styles.description}>{food.description || "No description available."}</Text>
       
       <View style={styles.table}>
@@ -362,6 +375,17 @@ const styles = StyleSheet.create({
   },
   errorText: {
     color: 'red',
+  },
+  noImageText: {
+    textAlign: 'center',
+    color: '#888',
+    marginBottom: 10,
+  },
+  foodImage: {
+    width: '100%', // Adjust the width as needed
+    height: 200,   // Adjust the height as needed
+    borderRadius: 10,
+    marginBottom: 10,
   },
 });
 

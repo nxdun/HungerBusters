@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet, Image } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -29,6 +29,7 @@ const FoodList = () => {
     const fetchFoods = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/foods`);
+        console.log('Fetched foods:', response.data); // Log the fetched data
         setFoods(response.data);
       } catch (error) {
         setError('Error fetching foods. Please try again later.');
@@ -52,25 +53,44 @@ const FoodList = () => {
     }
   };
 
-  const renderFoodItem = ({ item }) => (
-    <View style={styles.foodCard}>
-      <Text style={styles.foodName}>{item.name}</Text>
-      <Button
-        title="View Details"
-        onPress={() => {
-          router.push(`/FoodDetails/${item._id}`);
-        }}
-        color="#4A90E2"
-      />
-      {userRole === 'admin' && (
+  const renderFoodItem = ({ item }) => {
+    // Assuming item.image only contains the filename, e.g., "1728505407544-food.jpg"
+    const imageUrl = item.image ? `${apiUrl}/${item.image}` : null; // Construct the URL
+  
+    console.log('Image URL:', imageUrl); // Log the constructed image URL for debugging
+  
+    return (
+      <View style={styles.foodCard}>
+        {imageUrl ? (
+          <Image 
+            source={{ uri: imageUrl }} 
+            style={styles.foodImage} 
+            resizeMode="cover" 
+            onError={() => console.error('Failed to load image')}
+          />
+        ) : (
+          <Text style={styles.noImageText}>Image not available</Text>
+        )}
+        <Text style={styles.foodName}>{item.name}</Text>
         <Button
-          title="Delete"
-          color="red"
-          onPress={() => deleteFood(item._id)}
+          title="View Details"
+          onPress={() => {
+            router.push(`/FoodDetails/${item._id}`);
+          }}
+          color="#4A90E2"
         />
-      )}
-    </View>
-  );
+        {userRole === 'admin' && (
+          <Button
+            title="Delete"
+            color="red"
+            onPress={() => deleteFood(item._id)}
+          />
+        )}
+      </View>
+    );
+  };
+  
+  
 
   if (loading) {
     return (
@@ -159,6 +179,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
+  },
+  foodImage: {
+    width: '100%', // Adjust the width as needed
+    height: 200,   // Adjust the height as needed
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  noImageText: {
+    textAlign: 'center',
+    color: '#888',
+    marginBottom: 10,
   },
   foodName: {
     fontSize: 18,

@@ -4,6 +4,10 @@ const app = express();
 const cors = require('cors');
 const connection = require('./db');
 const helmet = require('helmet');
+const path = require('path'); // Import path module
+
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Import routes
 const UserRoutes = require('./routes/users');
@@ -22,26 +26,23 @@ app.use(express.json());
 
 app.use(cors({
     origin: '*', // Allow all origins (for development; be specific in production)
-  }));
+}));
 
-app.use(helmet()); 
+app.use(helmet());
 
-//test route
+// Test route
 app.get('/', (req, res) => {
     res.send('Hi From Hunger Busters API v1 \n;]');
 });
 
-//Routes
+// Routes
 app.use('/api/v1/users', UserRoutes);
 app.use('/api/v1/auth', AuthRoutes);
 app.use('/api/v1/school-donations', SchoolDonationRoutes);
 app.use('/api/v1/elder-donations', ElderDonationRoutes);
 app.use('/api/foods', foodRoutes);
-app.use('/api/fsr',FoodSubmissionRoutes);
+app.use('/api/fsr', FoodSubmissionRoutes);
 app.use('/api/recipes', recipeRoutes);
-
-//please add a space before adding route to avoid conflict
-
 
 // Define the port for the server to listen on
 const port = process.env.PORT || 3543;
