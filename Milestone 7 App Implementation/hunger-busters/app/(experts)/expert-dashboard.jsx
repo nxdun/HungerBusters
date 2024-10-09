@@ -7,6 +7,7 @@ import {
   Image,
   RefreshControl,
   ScrollView,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Table, Row, Rows } from "react-native-table-component";
@@ -23,6 +24,7 @@ const ExpertDashboard = () => {
   const [requestData, setRequestData] = useState({});
   const [tableData, setTableData] = useState([]);
   const [pendingApprovals, setPendingApprovals] = useState([]);
+
 
   useEffect(() => {
     fetchData();
@@ -164,6 +166,7 @@ const ExpertDashboard = () => {
           <PendingApprovalCard
             description={item.description}
             images={item.images}
+            to={item.id}
           />
         )}
         keyExtractor={(item) => item.id.toString()}
@@ -215,7 +218,7 @@ const SummaryCard = ({ title, value, color }) => (
 );
 
 // Pending Approval Card Component with image and button
-const PendingApprovalCard = ({ description, images }) => {
+const PendingApprovalCard = ({ description, images, to }) => {
   // Limit the description to 100 characters
   const truncatedDescription =
     description && description.length > 100
@@ -247,7 +250,7 @@ const PendingApprovalCard = ({ description, images }) => {
       </View>
 
       {/* Centered Floating Glassmorphism Approve button */}
-      {imageId && (
+      {to && (
         <View
           className="absolute bottom-4 left-0 right-0 mx-auto w-full items-center"
           style={{
@@ -256,7 +259,13 @@ const PendingApprovalCard = ({ description, images }) => {
         >
           <TouchableOpacity
             className="bg-red-400/60 py-2 w-28 rounded-full shadow-lg backdrop-blur-md"
-            onPress={() => router.push(`/pending-requests/${imageId}`)}
+            onPress={() => {
+
+              if (!to) {
+                Alert.alert('No id found');
+              }
+              router.push(`/pending-requests/${to}`);
+            }}
             style={{
               shadowColor: "#000",
               shadowOffset: { width: 0, height: 8 },
