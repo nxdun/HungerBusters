@@ -130,8 +130,10 @@ router.get("/get/dashboard-data", async (req, res) => {
     const pending = await FoodSch.countDocuments({ status: "Pending" });
 
     const tableData = await FoodSch.find()
-      .select("submissionDate status deliveryDate")
-      .lean();
+    .select("submissionDate status deliveryDate")
+    .sort({ submissionDate: -1 }) // Sort by submissionDate in descending order
+    .limit(5) // Limited the result to the latest 5 entries
+    .lean();  
 
     const formattedTableData = tableData.map((entry) => [
       entry.submissionDate.toISOString().split("T")[0],
@@ -165,7 +167,7 @@ router.get("/get/dashboard-data", async (req, res) => {
     res.status(500).json({ message: commonerrmsg });
   }
 });
-//moved to bottom due to conflict with /get/:id
+//moved to bottom due to conflict with /get/:id-----------------------------------------------
 // GET a single FoodSch by ID
 // @route   GET /FoodSchs/:id
 // @desc    Get a single food FoodSch by its ID
