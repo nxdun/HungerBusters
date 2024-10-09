@@ -3,6 +3,7 @@ import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet } fr
 import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import Icon from 'react-native-vector-icons/FontAwesome'; // Importing FontAwesome for icons
 
 const RecipeList = () => {
   const [recipes, setRecipes] = useState([]);
@@ -68,13 +69,11 @@ const RecipeList = () => {
         color="#4A90E2"
       />
       {userRole === 'admin' && ( // Conditional rendering based on user role
-        <>
-          <Button
-            title="Delete"
-            color="red"
-            onPress={() => deleteRecipe(item._id)}
-          />
-        </>
+        <Button
+          title="Delete"
+          color="red"
+          onPress={() => deleteRecipe(item._id)}
+        />
       )}
     </View>
   );
@@ -99,6 +98,15 @@ const RecipeList = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>All Recipes</Text>
+      
+      {/* Count of Recipes Card */}
+      <View style={styles.countCard}>
+      <Icon name="book" size={30} color="#4A90E2" style={styles.icon} />
+        <Text style={styles.countText}>
+          {recipes.length} {recipes.length === 1 ? 'Recipe' : 'Recipes'} Available
+        </Text>
+      </View>
+
       {userRole === 'admin' && ( // Conditional rendering based on user role
         <Button title="Add New Recipe" onPress={() => router.push('/AddRecipe')} />
       )}
@@ -125,6 +133,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 10,
     color: '#333',
+  },
+  countCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+    padding: 15,
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  icon: {
+    marginRight: 10,
+  },
+  countText: {
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#4A90E2', // Change color to match your theme
   },
   recipeCard: {
     padding: 15,
