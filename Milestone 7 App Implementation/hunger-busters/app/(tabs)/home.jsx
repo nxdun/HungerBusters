@@ -33,7 +33,7 @@ const Home = () => {
           </View>
         </View>
           
-        {/* Grid containing 4 buttons */}
+        {/* Grid containing 5 buttons */}
         <View className="flex flex-wrap flex-row justify-between">
           <ShaderCanvas />
 
@@ -54,10 +54,18 @@ const Home = () => {
             handlePress={() => router.push('#')}
             containerStyles="w-[180px] h-[200px] bg-yellow-200 rounded-xl shadow-md m-2" 
           />
+
           <CustomButton 
             title="Food"
             handlePress={() => router.push('/foods')}
             containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
+          />
+
+          {/* New Food Recipes button */}
+          <CustomButton 
+            title="Food Recipes"
+            handlePress={() => router.push('/recipes')}
+            containerStyles="w-[180px] h-[200px] bg-orange-400 rounded-xl shadow-md m-2" 
           />
         </View>
           
