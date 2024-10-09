@@ -2,12 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const RecipeList = () => {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userRole, setUserRole] = useState(null); // State to hold user role
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem('userRole'); // Retrieve role from AsyncStorage
+        setUserRole(role);
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchRecipes = async () => {
@@ -52,11 +67,15 @@ const RecipeList = () => {
         }}
         color="#4A90E2"
       />
-      <Button
-        title="Delete"
-        color="red"
-        onPress={() => deleteRecipe(item._id)}
-      />
+      {userRole === 'admin' && ( // Conditional rendering based on user role
+        <>
+          <Button
+            title="Delete"
+            color="red"
+            onPress={() => deleteRecipe(item._id)}
+          />
+        </>
+      )}
     </View>
   );
 
@@ -80,7 +99,9 @@ const RecipeList = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>All Recipes</Text>
-      <Button title="Add New Recipe" onPress={() => router.push('/AddRecipe')} />
+      {userRole === 'admin' && ( // Conditional rendering based on user role
+        <Button title="Add New Recipe" onPress={() => router.push('/AddRecipe')} />
+      )}
       <FlatList
         data={recipes}
         renderItem={renderRecipeItem}
@@ -139,7 +160,6 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     fontSize: 16,
-    color: '#4A90E2',
   },
   errorContainer: {
     flex: 1,
@@ -155,6 +175,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     textAlign: 'center',
+    marginTop: 20,
     fontSize: 16,
     color: '#888',
   },

@@ -1,12 +1,12 @@
 import { View, Text, ScrollView, Image } from 'react-native';
 import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 import { images } from '../../constants';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import { Link } from 'expo-router';
-
 import { useRouter } from 'expo-router';
 import axios from 'axios';
 
@@ -20,31 +20,33 @@ const SignIn = () => {
   const [error, setError] = useState('');
   const router = useRouter();
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-  
 
   const submit = async () => {
     setIsSubmitting(true);
     setError('');
-  
+
     // Validate form fields
     if (!form.email || !form.password) {
       setError('All fields are required.');
       setIsSubmitting(false);
       return;
     }
-  
+
     try {
       const response = await axios.post(`${apiUrl}/api/v1/auth`, form);
- 
+
       // Log the full response
       console.log('Response:', response.data);
-  
+
       // Adjust based on your actual response structure
-      const { role } = response.data.data.user; 
-      
+      const { role } = response.data.data.user;
+
+      // Store role in AsyncStorage
+      await AsyncStorage.setItem('userRole', role);
+
       // Handle successful login
       console.log('Login successful:', response.data.message);
-      
+
       // Redirect based on user role
       if (role === 'admin') {
         router.replace('/admin-dashboard');
@@ -60,7 +62,6 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
-  
 
   return (
     <SafeAreaView className="bg-primary h-full">

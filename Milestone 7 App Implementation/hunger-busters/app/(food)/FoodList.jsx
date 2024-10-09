@@ -2,12 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const FoodList = () => {
   const [foods, setFoods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userRole, setUserRole] = useState(null); // State to hold user role
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+  useEffect(() => {
+    const fetchUserRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem('userRole'); // Retrieve role from AsyncStorage
+        setUserRole(role);
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
+    fetchUserRole();
+  }, []);
 
   useEffect(() => {
     const fetchFoods = async () => {
@@ -45,13 +60,15 @@ const FoodList = () => {
           // Navigate to FoodDetails with foodId as a parameter
           router.push(`/FoodDetails/${item._id}`);
         }}
-        color="#4A90E2" // Consistent button color
+        color="#4A90E2"
       />
-      <Button
-        title="Delete"
-        color="red"
-        onPress={() => deleteFood(item._id)}
-      />
+      {userRole === 'admin' && ( // Conditional rendering based on user role
+        <Button
+          title="Delete"
+          color="red"
+          onPress={() => deleteFood(item._id)}
+        />
+      )}
     </View>
   );
 
@@ -75,12 +92,14 @@ const FoodList = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>All Foods</Text>
-      <Button title="Add New Food" onPress={() => router.push('/AddFood')} />
+      {userRole === 'admin' && ( // Conditional rendering based on user role
+        <Button title="Add New Food" onPress={() => router.push('/AddFood')} />
+      )}
       <FlatList
         data={foods}
         renderItem={renderFoodItem}
         keyExtractor={item => item._id}
-        ItemSeparatorComponent={() => <View style={styles.separator} />} // Separator between items
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
         ListEmptyComponent={<Text style={styles.emptyText}>No foods available.</Text>}
       />
     </View>
@@ -109,7 +128,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2, // For Android shadow effect
+    elevation: 2,
   },
   foodName: {
     fontSize: 18,

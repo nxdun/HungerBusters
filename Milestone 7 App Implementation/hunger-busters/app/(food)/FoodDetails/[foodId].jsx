@@ -3,6 +3,7 @@ import { View, Text, Button, ActivityIndicator, Alert, StyleSheet, ScrollView, T
 import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { usePathname } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
 
 const FoodDetails = () => {
   const router = useRouter();
@@ -12,6 +13,7 @@ const FoodDetails = () => {
   const [error, setError] = useState('');
   const [food, setFood] = useState(null);
   const [editMode, setEditMode] = useState(false);
+  const [userRole, setUserRole] = useState(null); // State to hold user role
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
   useEffect(() => {
@@ -30,7 +32,17 @@ const FoodDetails = () => {
       }
     };
 
+    const fetchUserRole = async () => {
+      try {
+        const role = await AsyncStorage.getItem('userRole'); // Retrieve role from AsyncStorage
+        setUserRole(role);
+      } catch (error) {
+        console.error('Error fetching user role:', error);
+      }
+    };
+
     fetchFoodDetails();
+    fetchUserRole();
   }, [foodId, apiUrl]);
 
   const handleDelete = async () => {
@@ -280,11 +292,16 @@ const FoodDetails = () => {
           )}
         </View>
       </View>
-      
+
       <View style={styles.buttonContainer}>
-        <Button title={editMode ? 'Save Changes' : 'Edit Food'} onPress={editMode ? handleUpdate : () => setEditMode(!editMode)} />
-        <Button title="Delete Food" onPress={handleDelete} color="red" />
-      </View>
+      {userRole === 'admin' && ( // Conditionally render buttons for admin users
+      <>
+          <Button title={editMode ? 'Save Changes' : 'Edit Food'} onPress={editMode ? handleUpdate : () => setEditMode(!editMode)} />
+          <Button title="Delete Food" onPress={handleDelete} color="red" />
+          </>
+        )}
+        </View>
+
     </ScrollView>
   );
 };

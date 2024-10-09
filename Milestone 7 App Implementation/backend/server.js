@@ -38,6 +38,7 @@ app.use('/api/v1/school-donations', SchoolDonationRoutes);
 app.use('/api/v1/elder-donations', ElderDonationRoutes);
 app.use('/api/foods', foodRoutes);
 app.use('/api/fsr',FoodSubmissionRoutes);
+app.use('/api/recipes', recipeRoutes);
 
 //please add a space before adding route to avoid conflict
 
