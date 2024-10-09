@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, Image, ScrollView  } from 'react-native';
+import { View, Text, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
+import FormField from '../../components/FormField'; // Ensure this is created similarly to AddFood
+import CustomButton from '../../components/CustomButton';
 
 const AddRecipe = () => {
-  // State variables for each form input
-  const [title, setTitle] = useState('');
-  const [prepTime, setPrepTime] = useState('');
-  const [cookTime, setCookTime] = useState('');
-  const [difficulty, setDifficulty] = useState('');
-  const [servings, setServings] = useState('');
-  const [description, setDescription] = useState('');
+  const [form, setForm] = useState({
+    title: '',
+    prepTime: '',
+    cookTime: '',
+    difficulty: '',
+    servings: '',
+    description: '',
+    ingredients: '',
+    method: '',
+    videoLink: '',
+  });
   const [nutrition, setNutrition] = useState({
     kcal: '',
     fat: '',
@@ -22,52 +29,62 @@ const AddRecipe = () => {
     protein: '',
     salt: '',
   });
-  const [ingredients, setIngredients] = useState('');
-  const [method, setMethod] = useState('');
-  const [videoLink, setVideoLink] = useState('');
-  const [image, setImage] = useState(null); // State for storing the image URI
-
+  const [image, setImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
+  const handleChangeText = (field, value) => {
+    setForm({ ...form, [field]: value });
+  };
+
+  const handleNutritionChange = (key, value) => {
+    setNutrition({ ...nutrition, [key]: value });
+  };
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission to access camera roll is required!');
+      return;
+    }
+
+    const pickerResult = await ImagePicker.launchImageLibraryAsync();
+    if (!pickerResult.canceled) {
+      setImage(pickerResult.assets[0].uri);
+    }
+  };
+
+  const removeImage = () => {
+    setImage(null);
+  };
+
   const handleAddRecipe = async () => {
-    // Check if all required fields are filled
-    if (!title || !prepTime || !cookTime || !difficulty || !servings || !description || !ingredients || !method) {
-      Alert.alert('Error', 'All fields are required');
+    setIsSubmitting(true);
+    setError('');
+
+    // Validate form fields
+    const requiredFields = Object.keys(form).filter(field => !form[field]);
+    if (requiredFields.length > 0) {
+      setError('All fields are required.');
+      setIsSubmitting(false);
       return;
     }
 
     try {
       const formData = new FormData();
-      formData.append('title', title);
-      formData.append('prepTime', prepTime);
-      formData.append('cookTime', cookTime);
-      formData.append('difficulty', difficulty);
-      formData.append('servings', servings);
-      formData.append('description', description);
-      
-      // Append nutrition data
+      Object.keys(form).forEach(key => {
+        formData.append(key, form[key]);
+      });
       Object.keys(nutrition).forEach(key => {
         formData.append(`nutrition[${key}]`, nutrition[key]);
       });
+      formData.append('image', {
+        uri: image,
+        type: 'image/jpeg',
+        name: 'recipe.jpg',
+      });
 
-      formData.append('ingredients', ingredients.split('\n')); // Split ingredients by line breaks
-      formData.append('method', method.split('\n')); // Split method by line breaks
-      
-      // Append video link if provided
-      if (videoLink) {
-        formData.append('videoLink', videoLink);
-      }
-
-      // Add image to formData if it exists
-      if (image) {
-        formData.append('image', {
-          uri: image,
-          type: 'image/jpeg', // Adjust this based on your image type
-          name: 'recipe.jpg', // You can change the name here
-        });
-      }
-
-      // Send POST request to the backend
       await axios.post(`${apiUrl}/api/recipes/add`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -77,140 +94,103 @@ const AddRecipe = () => {
       Alert.alert('Success', 'Recipe added successfully');
       router.push('/RecipeList');
     } catch (error) {
-      console.error("Error adding recipe", error);
-      Alert.alert('Error', 'Failed to add recipe');
-    }
-  };
-
-  const pickImage = async () => {
-    // Request permission to access the camera and media library
-    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
-
-    if (permissionResult.granted === false) {
-      Alert.alert('Permission to access camera roll is required!');
-      return;
-    }
-
-    // Open the image picker
-    const pickerResult = await ImagePicker.launchImageLibraryAsync();
-    if (!pickerResult.canceled) {
-      setImage(pickerResult.assets[0].uri); // Store the image URI
+      console.error('Error adding recipe:', error);
+      setError(error.response?.data?.message || 'Failed to add recipe');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <ScrollView style={styles.container}>
-    <View style={styles.container}>
-      <Text style={styles.label}>Recipe Title</Text>
-      <TextInput
-        style={styles.input}
-        value={title}
-        onChangeText={setTitle}
-        placeholder="Enter recipe title"
-      />
+    <SafeAreaView className="bg-primary h-full">
+      <ScrollView>
+        <View className="w-full justify-center min-h-[85vh] px-4 my-6">
+          <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Add New Food</Text>
 
-      <Text style={styles.label}>Preparation Time</Text>
-      <TextInput
-        style={styles.input}
-        value={prepTime}
-        onChangeText={setPrepTime}
-        placeholder="e.g., 10 mins"
-      />
-
-      <Text style={styles.label}>Cooking Time</Text>
-      <TextInput
-        style={styles.input}
-        value={cookTime}
-        onChangeText={setCookTime}
-        placeholder="e.g., 30 mins"
-      />
-
-      <Text style={styles.label}>Difficulty</Text>
-      <TextInput
-        style={styles.input}
-        value={difficulty}
-        onChangeText={setDifficulty}
-        placeholder="e.g., Easy"
-      />
-
-      <Text style={styles.label}>Servings</Text>
-      <TextInput
-        style={styles.input}
-        value={servings}
-        onChangeText={setServings}
-        placeholder="e.g., 4"
-        keyboardType="numeric"
-      />
-
-      <Text style={styles.label}>Description</Text>
-      <TextInput
-        style={styles.input}
-        value={description}
-        onChangeText={setDescription}
-        placeholder="Enter recipe description"
-        multiline
-      />
-
-      <Text style={styles.label}>Nutrition (kcal, fat, saturates, carbs, sugars, fibre, protein, salt)</Text>
-      {Object.keys(nutrition).map((key) => (
-        <TextInput
-          key={key}
-          style={styles.input}
-          value={nutrition[key]}
-          onChangeText={(value) => setNutrition({ ...nutrition, [key]: value })}
-          placeholder={`${key.charAt(0).toUpperCase() + key.slice(1)}`}
+        <FormField
+          title="Recipe Title"
+          value={form.title}
+          handleChangeText={(value) => handleChangeText('title', value)}
         />
-      ))}
+        <FormField
+          title="Preparation Time"
+          value={form.prepTime}
+          handleChangeText={(value) => handleChangeText('prepTime', value)}
+        />
+        <FormField
+          title="Cooking Time"
+          value={form.cookTime}
+          handleChangeText={(value) => handleChangeText('cookTime', value)}
+        />
+        <FormField
+          title="Difficulty"
+          value={form.difficulty}
+          handleChangeText={(value) => handleChangeText('difficulty', value)}
+        />
+        <FormField
+          title="Servings"
+          value={form.servings}
+          handleChangeText={(value) => handleChangeText('servings', value)}
+          keyboardType="numeric"
+        />
+        <FormField
+          title="Description"
+          value={form.description}
+          handleChangeText={(value) => handleChangeText('description', value)}
+          multiline
+        />
+        <Text style={{ marginVertical: 8 }}>Nutrition</Text>
+        {Object.keys(nutrition).map((key) => (
+          <FormField
+            key={key}
+            title={key.charAt(0).toUpperCase() + key.slice(1)}
+            value={nutrition[key]}
+            handleChangeText={(value) => handleNutritionChange(key, value)}
+          />
+        ))}
+        <FormField
+          title="Ingredients (newline-separated)"
+          value={form.ingredients}
+          handleChangeText={(value) => handleChangeText('ingredients', value)}
+          multiline
+        />
+        <FormField
+          title="Method (newline-separated)"
+          value={form.method}
+          handleChangeText={(value) => handleChangeText('method', value)}
+          multiline
+        />
+        <FormField
+          title="Video Link"
+          value={form.videoLink}
+          handleChangeText={(value) => handleChangeText('videoLink', value)}
+        />
 
-      <Text style={styles.label}>Ingredients (separate each ingredient with a newline)</Text>
-      <TextInput
-        style={styles.input}
-        value={ingredients}
-        onChangeText={setIngredients}
-        placeholder="Enter ingredients"
-        multiline
-      />
+        <TouchableOpacity onPress={pickImage} className="mt-7 bg-secondary p-4 rounded-lg">
+            <Text className="text-white text-center">Upload Recipe Image</Text>
+        </TouchableOpacity>
 
-      <Text style={styles.label}>Method (separate each step with a newline)</Text>
-      <TextInput
-        style={styles.input}
-        value={method}
-        onChangeText={setMethod}
-        placeholder="Enter cooking instructions"
-        multiline
-      />
+        {image && (
+          <View style={{ marginTop: 16 }}>
+            <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />
+            <TouchableOpacity onPress={removeImage} style={{ marginTop: 8, backgroundColor: '#FF5722', padding: 8, borderRadius: 8 }}>
+              <Text style={{ color: '#FFFFFF', textAlign: 'center' }}>Remove Image</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
-      <Text style={styles.label}>Video Link (optional)</Text>
-      <TextInput
-        style={styles.input}
-        value={videoLink}
-        onChangeText={setVideoLink}
-        placeholder="Enter YouTube video link"
-      />
+        {error ? <Text className="text-red-500 mt-4">{error}</Text> : null}
 
-      <Button title="Pick an image from camera roll" onPress={pickImage} />
-      {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
-      <Button title="Add Recipe" onPress={handleAddRecipe} />
-    </View>
-  </ScrollView>
+        <CustomButton
+          title="Add Recipe"
+          handlePress={handleAddRecipe}
+          isLoading={isSubmitting}
+          containerStyles="mt-7"
+        />
+      </View>
+    </ScrollView>
+    </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-  },
-  label: {
-    fontSize: 18,
-    marginVertical: 8,
-  },
-  input: {
-    height: 40,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    marginBottom: 20,
-    paddingHorizontal: 10,
-  },
-});
 
 export default AddRecipe;

@@ -79,7 +79,6 @@ const RecipeDetails = () => {
 
   const openYouTubeVideo = () => {
     if (recipe.videoLink) {
-      // Open the YouTube video in the browser
       Linking.openURL(recipe.videoLink).catch(err => console.error("Failed to open URL:", err));
     } else {
       Alert.alert('Error', 'No video link available.');
@@ -127,74 +126,172 @@ const RecipeDetails = () => {
         <Text style={styles.noImageText}>Image not available</Text>
       )}
 
-      <Text style={styles.label}>Description:</Text>
+      {/* New Fields */}
       {editMode ? (
-        <TextInput
-          style={styles.input}
-          value={recipe.description}
-          onChangeText={(text) => handleInputChange('description', text)}
-        />
+        <>
+          <Text style={styles.label}>Preparation Time:</Text>
+          <TextInput
+            style={styles.input}
+            value={recipe.prepTime}
+            onChangeText={(text) => handleInputChange('prepTime', text)}
+          />
+
+          <Text style={styles.label}>Cook Time:</Text>
+          <TextInput
+            style={styles.input}
+            value={recipe.cookTime}
+            onChangeText={(text) => handleInputChange('cookTime', text)}
+          />
+
+          <Text style={styles.label}>Difficulty:</Text>
+          <TextInput
+            style={styles.input}
+            value={recipe.difficulty}
+            onChangeText={(text) => handleInputChange('difficulty', text)}
+          />
+
+          <Text style={styles.label}>Servings:</Text>
+          <TextInput
+            style={styles.input}
+            value={recipe.servings}
+            onChangeText={(text) => handleInputChange('servings', text)}
+          />
+          <Text style={styles.label}>Description:</Text>
+          <TextInput
+            style={styles.input}
+            value={recipe.description}
+            onChangeText={(text) => handleInputChange('description', text)}
+          />
+
+          <Text style={styles.label}>Nutrition (Kcal):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.kcal)} // Convert to string for TextInput
+            onChangeText={(text) => handleInputChange('nutrition.kcal', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Fat):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.fat)}
+            onChangeText={(text) => handleInputChange('nutrition.fat', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Saturates):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.saturates)}
+            onChangeText={(text) => handleInputChange('nutrition.saturates', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Carbs):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.carbs)}
+            onChangeText={(text) => handleInputChange('nutrition.carbs', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Sugars):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.sugars)}
+            onChangeText={(text) => handleInputChange('nutrition.sugars', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Fibre):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.fibre)}
+            onChangeText={(text) => handleInputChange('nutrition.fibre', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Protein):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.protein)}
+            onChangeText={(text) => handleInputChange('nutrition.protein', Number(text))}
+          />
+          <Text style={styles.label}>Nutrition (Salt):</Text>
+          <TextInput
+            style={styles.input}
+            value={String(recipe.nutrition.salt)}
+            onChangeText={(text) => handleInputChange('nutrition.salt', Number(text))}
+          />
+        </>
       ) : (
-        <Text style={styles.description}>{recipe.description || "No description available."}</Text>
+        <>
+          <Text style={styles.label}>Preparation Time:</Text>
+          <Text style={styles.description}>{recipe.prepTime || 'N/A'}</Text>
+
+          <Text style={styles.label}>Cook Time:</Text>
+          <Text style={styles.description}>{recipe.cookTime || 'N/A'}</Text>
+
+          <Text style={styles.label}>Difficulty:</Text>
+          <Text style={styles.description}>{recipe.difficulty || 'N/A'}</Text>
+
+          <Text style={styles.label}>Servings:</Text>
+          <Text style={styles.description}>{recipe.servings || 'N/A'}</Text>
+
+          <Text style={styles.label}>Description:</Text>
+          <Text style={styles.description}>{recipe.description || 'N/A'}</Text>
+
+          <Text style={styles.label}>Nutrition:</Text>
+          <Text style={styles.nutritionText}>Kcal: {recipe.nutrition.kcal || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Fat: {recipe.nutrition.fat || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Saturates: {recipe.nutrition.saturates || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Carbs: {recipe.nutrition.carbs || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Sugars: {recipe.nutrition.sugars || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Fibre: {recipe.nutrition.fibre || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Protein: {recipe.nutrition.protein || 'N/A'}</Text>
+          <Text style={styles.nutritionText}>Salt: {recipe.nutrition.salt || 'N/A'}</Text>
+        </>
       )}
 
       <Text style={styles.label}>Ingredients:</Text>
       {editMode ? (
-        recipe.ingredients.map((ingredient, index) => (
-          <TextInput
-            key={index}
-            style={styles.input}
-            value={ingredient}
-            onChangeText={(text) => {
-              const updatedIngredients = [...recipe.ingredients];
-              updatedIngredients[index] = text;
-              handleInputChange('ingredients', updatedIngredients);
-            }}
-          />
-        ))
+        <TextInput
+          style={styles.input}
+          value={recipe.ingredients}
+          onChangeText={(text) => handleInputChange('ingredients', text)}
+          multiline
+        />
       ) : (
-        recipe.ingredients.map((ingredient, index) => (
-          <Text key={index} style={styles.ingredient}>{ingredient}</Text>
-        ))
+        <Text style={styles.description}>{recipe.ingredients || 'N/A'}</Text>
       )}
-
       <Text style={styles.label}>Method:</Text>
       {editMode ? (
-        recipe.method.map((step, index) => (
-          <TextInput
-            key={index}
-            style={styles.input}
-            value={step}
-            onChangeText={(text) => {
-              const updatedMethod = [...recipe.method];
-              updatedMethod[index] = text;
-              handleInputChange('method', updatedMethod);
-            }}
-          />
-        ))
+        <TextInput
+          style={styles.input}
+          value={recipe.method}
+          onChangeText={(text) => handleInputChange('method', text)}
+          multiline
+        />
       ) : (
-        recipe.method.map((step, index) => (
-          <Text key={index} style={styles.step}>{step}</Text>
-        ))
+        <Text style={styles.description}>{recipe.method || 'N/A'}</Text>
       )}
 
-      {recipe.videoLink && (
-        <View style={styles.videoContainer}>
-          <Text style={styles.label}>Watch Video:</Text>
-          <TouchableOpacity onPress={openYouTubeVideo}>
-            <Text style={styles.videoLink}>Open Video on YouTube</Text>
-          </TouchableOpacity>
+      <Text style={styles.label}>Video Link:</Text>
+      {editMode ? (
+        <TextInput
+          style={styles.input}
+          value={recipe.videoLink}
+          onChangeText={(text) => handleInputChange('videoLink', text)}
+        />
+      ) : (
+        <TouchableOpacity onPress={openYouTubeVideo}>
+          <Text style={styles.videoLink}>{recipe.videoLink || 'No link available'}</Text>
+        </TouchableOpacity>
+      )}
+
+      {userRole === 'admin' && (
+        <View style={styles.buttonContainer}>
+          {editMode ? (
+            <>
+              <Button title="Save Changes" onPress={handleUpdate} />
+              <Button title="Cancel" onPress={() => setEditMode(false)} />
+            </>
+          ) : (
+            <>
+              <Button title="Edit" onPress={() => setEditMode(true)} />
+              <Button title="Delete" onPress={handleDelete} color="red" />
+            </>
+          )}
         </View>
       )}
-
-      <View style={styles.buttonContainer}>
-        {userRole === 'admin' && ( // Conditional rendering based on user role
-          <>
-            <Button title={editMode ? 'Save Changes' : 'Edit Recipe'} onPress={editMode ? handleUpdate : () => setEditMode(!editMode)} />
-            <Button title="Delete Recipe" onPress={handleDelete} color="red" />
-          </>
-        )}
-      </View>
     </ScrollView>
   );
 };
@@ -202,67 +299,58 @@ const RecipeDetails = () => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-  },
-  centered: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexGrow: 1,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  foodImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  noImageText: {
+    color: 'gray',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
   label: {
-    fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 20,
+    marginVertical: 5,
   },
   description: {
-    fontSize: 16,
-    marginBottom: 20,
+    marginBottom: 10,
   },
-  ingredient: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
-  step: {
-    fontSize: 16,
-    marginVertical: 5,
-  },
-  videoContainer: {
-    marginVertical: 20,
+  nutritionText: {
+    marginLeft: 10,
   },
   videoLink: {
-    color: '#4A90E2',
+    color: 'blue',
     textDecorationLine: 'underline',
-    marginVertical: 5,
+    marginBottom: 10,
+  },
+  input: {
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
   },
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   errorText: {
     color: 'red',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-    padding: 10,
-    marginVertical: 5,
-  },
-  noImageText: {
-    textAlign: 'center',
-    color: '#888',
-    marginBottom: 10,
-  },
-  foodImage: {
-    width: '100%', // Adjust the width as needed
-    height: 200,   // Adjust the height as needed
-    borderRadius: 10,
-    marginBottom: 10,
   },
 });
 
