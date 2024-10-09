@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet } from 'react-native';
+import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet, Image } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
@@ -29,6 +29,7 @@ const RecipeList = () => {
     const fetchRecipes = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/recipes`);
+        console.log('Fetched foods:', response.data);
         setRecipes(response.data);
       } catch (error) {
         setError('Error fetching recipes. Please try again later.');
@@ -52,8 +53,22 @@ const RecipeList = () => {
     }
   };
 
-  const renderRecipeItem = ({ item }) => (
+  const renderRecipeItem = ({ item }) => {
+    const imageUrl = item.image ? `${apiUrl}/${item.image}` : null;
+    console.log('Image URL:', imageUrl);
+     
+    return(
     <View style={styles.recipeCard}>
+         {imageUrl ? (
+          <Image 
+            source={{ uri: imageUrl }} 
+            style={styles.foodImage} 
+            resizeMode="cover" 
+            onError={() => console.error('Failed to load image')}
+          />
+        ) : (
+          <Text style={styles.noImageText}>Image not available</Text>
+        )}
       <Text style={styles.recipeName}>{item.name}</Text>
       {item.description && (
         <Text style={styles.recipeDescription}>{item.description}</Text>
@@ -76,7 +91,8 @@ const RecipeList = () => {
         />
       )}
     </View>
-  );
+    );
+  };
 
   if (loading) {
     return (
@@ -208,6 +224,17 @@ const styles = StyleSheet.create({
     marginTop: 20,
     fontSize: 16,
     color: '#888',
+  },
+  foodImage: {
+    width: '100%', // Adjust the width as needed
+    height: 200,   // Adjust the height as needed
+    borderRadius: 10,
+    marginBottom: 10,
+  },
+  noImageText: {
+    textAlign: 'center',
+    color: '#888',
+    marginBottom: 10,
   },
 });
 
