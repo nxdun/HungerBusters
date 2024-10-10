@@ -58,7 +58,8 @@ const Home = () => {
           <CustomButton 
             title="Food Details"
             handlePress={() => router.push('/FoodList')}
-            containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
+            containerStyles="w-[180px] h-[200px] bg-blue-600 rounded-xl shadow-md m-2"
+ 
           />
 
           {/* New Food Recipes button */}

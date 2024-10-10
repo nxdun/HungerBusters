@@ -42,6 +42,7 @@ const RootLayout = () => {
         <Stack.Screen name="(experts)" options={{ headerShown:false }}/>
         <Stack.Screen name="(admin)" options={{ headerShown:false }}/>
         <Stack.Screen name="(food)" options={{ headerShown:false }}/>
+        <Stack.Screen name="(recipes)" options={{ headerShown:false }}/>
       </Stack>
     </StripeProvider>
   );

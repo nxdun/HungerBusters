@@ -107,11 +107,11 @@ const FoodList = () => {
           <Text className="text-white text-center">View Details</Text>
         </TouchableOpacity>
         {userRole === 'admin' && (
-        <TouchableOpacity className="bg-red-500 py-2 px-4 rounded-lg mt-3"
-          onPress={() => deleteFood(item._id)}
-        >
-          <Text className="text-white text-center">Delete</Text>
-        </TouchableOpacity>
+          <TouchableOpacity className="bg-red-500 py-2 px-4 rounded-lg mt-3"
+            onPress={() => deleteFood(item._id)}
+          >
+            <Text className="text-white text-center">Delete</Text>
+          </TouchableOpacity>
         )}
       </View>
     );
@@ -137,6 +137,13 @@ const FoodList = () => {
   return (
     <View className="p-2 bg-gray-100 flex-1">
       <Text className="text-2xl font-bold text-center my-2">All Foods</Text>
+
+      <TouchableOpacity
+        className="bg-blue-500 py-2 px-4 rounded-lg self-start mt-4 mb-6 ml-2" // Adjusted margin for moving the button slightly down
+        onPress={() => router.back()}
+      >
+        <Text className="text-white text-center">Back</Text>
+      </TouchableOpacity>
 
       <TextInput
         className="h-10 border border-gray-300 px-2 rounded-lg mb-4"
