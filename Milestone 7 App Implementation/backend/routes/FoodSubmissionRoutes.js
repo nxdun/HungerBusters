@@ -3,7 +3,8 @@ const FoodSch = require("../models/FoodSchema"); // Assuming models are in model
 const router = express.Router();
 
 // REUSABLE THINGS-------------------------------------------------------------------------------------------------
-const commonerrmsg = "Error retrieving Data, Please Submit a Support request if issue persists";
+const commonerrmsg =
+  "Error retrieving Data, Please Submit a Support request if issue persists";
 
 // All in one Helper function for validating FoodSchema body
 const validateFoodSchBody = (body) => {
@@ -13,12 +14,33 @@ const validateFoodSchBody = (body) => {
     return { valid: false, message: "Title is required and must be a string." };
   }
 
-  if (!status || !["On Refrigerator", "Pending", "Expired", "Completed", "Submitted"].includes(status)) {
-    return { valid: false, message: "Status is invalid. Choose a valid status." };
+  if (
+    !status ||
+    ![
+      "On Refrigerator",
+      "Approved",
+      "Rejected",
+      "Pending",
+      "Expired",
+      "Completed",
+      "Submitted",
+    ].includes(status)
+  ) {
+    return {
+      valid: false,
+      message: "Status is invalid. Choose a valid status.",
+    };
   }
 
-  if (!location || typeof location.latitude !== "number" || typeof location.longitude !== "number") {
-    return { valid: false, message: "Location must include valid latitude and longitude values." };
+  if (
+    !location ||
+    typeof location.latitude !== "number" ||
+    typeof location.longitude !== "number"
+  ) {
+    return {
+      valid: false,
+      message: "Location must include valid latitude and longitude values.",
+    };
   }
 
   if (foodLifeTime && typeof foodLifeTime !== "number") {
@@ -65,7 +87,12 @@ router.post("/post", async (req, res) => {
     res.status(201).json("saved successfully !");
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: "Error saving data, Please Submit a Support request if issue persists" });
+    res
+      .status(400)
+      .json({
+        message:
+          "Error saving data, Please Submit a Support request if issue persists",
+      });
   }
 });
 
@@ -96,11 +123,17 @@ router.put("/put/:id", async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    if (!updatedFoodSch) return res.status(404).json({ message: "FoodSch not found" });
+    if (!updatedFoodSch)
+      return res.status(404).json({ message: "Item not found" });
     res.json(updatedFoodSch);
   } catch (error) {
     console.error(error);
-    res.status(400).json({ message: "Error updating FoodSch, Please Submit a Support request if issue persists" });
+    res
+      .status(400)
+      .json({
+        message:
+          "Error updating Item, Please Submit a Support request if issue persists",
+      });
   }
 });
 
@@ -110,11 +143,17 @@ router.put("/put/:id", async (req, res) => {
 router.delete("/delete/:id", async (req, res) => {
   try {
     const deletedFoodSch = await FoodSch.findByIdAndDelete(req.params.id);
-    if (!deletedFoodSch) return res.status(404).json({ message: "FoodSch not found" });
+    if (!deletedFoodSch)
+      return res.status(404).json({ message: "Item not found" });
     res.json({ message: "FoodSch deleted successfully" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Error deleting FoodSch, Please Submit a Support request if issue persists" });
+    res
+      .status(500)
+      .json({
+        message:
+          "Error deleting Item, Please Submit a Support request if issue persists",
+      });
   }
 });
 
@@ -138,16 +177,18 @@ router.get("/get/dashboard-data", async (req, res) => {
     const formattedTableData = tableData.map((entry) => [
       entry.submissionDate.toISOString().split("T")[0],
       entry.status,
-      entry.deliveryDate ? entry.deliveryDate.toISOString().split("T")[0] : "N/A",
+      entry.deliveryDate
+        ? entry.deliveryDate.toISOString().split("T")[0]
+        : "N/A",
       entry.status === "Pending" ? "Pending" : "Completed",
     ]);
 
     const pendingApprovals = await FoodSch.find({ status: "Pending" })
-      .select("_id images description") 
+      .select("_id images description")
       .lean();
 
     const formattedPendingApprovals = pendingApprovals.map((entry) => ({
-      id: entry._id, 
+      id: entry._id,
       images: entry.images,
       description: entry.description || "No description",
     }));
@@ -164,9 +205,109 @@ router.get("/get/dashboard-data", async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "An error occurred while fetching dashboard data" });
+    res
+      .status(500)
+      .json({ message: "An error occurred while fetching dashboard data" });
   }
 });
+
+// PUT customized for submission of expiry and status
+// @route   PUT /put/submit//:id
+// @desc    Update an existing food FoodSch by its ID with items only for submission
+router.put("/put/submit/:id", async (req, res) => {
+  // Custom validation
+  if (!req.body.status || !["Pending", "Expired", "Approved", "Rejected"].includes(req.body.status)) {
+    return res.status(400).json({ message: "Status is invalid. Choose a valid status." });
+  }
+
+  if (!req.body.foodLifeTime || typeof req.body.foodLifeTime !== "number") {
+    return res.status(400).json({ message: "Food life time must be a number." });
+  }
+
+  if (req.body.foodLifeTime < 0) {
+    return res.status(400).json({ message: "Food life time must be greater than or equal to 0." });
+  }
+
+  try {
+    const updatedFoodSch = await FoodSch.findByIdAndUpdate(
+      req.params.id,
+      {
+        status: req.body.status,
+        foodLifeTime: req.body.foodLifeTime,
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedFoodSch) {
+      return res.status(404).json({ message: "Item not found" });
+    }
+
+    res.json(updatedFoodSch);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Error updating Item, Please submit a support request if the issue persists.",
+    });
+  }
+});
+
+// GET analytics data for dashboard
+// @route   GET /get/analytics
+// @desc    Retrieve analytics data for the dashboard, including approval counts, time series data, etc.
+router.get("/get/analytics", async (req, res) => {
+  try {
+    const approvedCount = await FoodSch.countDocuments({ status: "Approved" });
+    const totalCount = await FoodSch.countDocuments();
+    const expiredCount = await FoodSch.countDocuments({ status: "Expired" });
+    const pendingCount = await FoodSch.countDocuments({ status: "Pending" });
+
+    // Time series data for approvals, rejects, and deliveries over time
+    const approvalsOverTime = await FoodSch.aggregate([
+      { $match: { status: "Approved" } },
+      {
+        $group: {
+          _id: { $month: "$submissionDate" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const rejectsOverTime = await FoodSch.aggregate([
+      { $match: { status: "Rejected" } },
+      {
+        $group: {
+          _id: { $month: "$submissionDate" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const deliveriesOverTime = await FoodSch.aggregate([
+      { $match: { deliveryDate: { $exists: true } } },
+      {
+        $group: {
+          _id: { $month: "$deliveryDate" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.json({
+      approvedCount,
+      totalCount,
+      expiredCount,
+      pendingCount,
+      approvalsOverTime: approvalsOverTime.map(item => item.count),
+      rejectsOverTime: rejectsOverTime.map(item => item.count),
+      deliveriesOverTime: deliveriesOverTime.map(item => item.count),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while fetching analytics data" });
+  }
+});
+
+
 
 //moved to bottom due to conflict with /get/:id-----------------------------------------------
 // GET a single FoodSch by ID
@@ -174,8 +315,10 @@ router.get("/get/dashboard-data", async (req, res) => {
 // @desc    Get a single food FoodSch by its ID
 router.get("/get/:id", async (req, res) => {
   try {
-    const foodSch = await FoodSch.findById(req.params.id).select("-__v -_id -location").lean();
-    if (!foodSch) return res.status(404).json({ message: "FoodSch not found" });
+    const foodSch = await FoodSch.findById(req.params.id)
+      .select("-__v -_id -location")
+      .lean();
+    if (!foodSch) return res.status(404).json({ message: "item not found" });
     res.json(foodSch);
   } catch (error) {
     console.error(error);

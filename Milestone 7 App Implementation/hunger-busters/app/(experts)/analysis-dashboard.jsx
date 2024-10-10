@@ -1,83 +1,124 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PieChart, LineChart } from 'react-native-chart-kit';
-import { Dimensions } from 'react-native';
-import TransparentTopBar from '../../components/TransparentTopBar'; // Custom top bar
-import ShaderCanvas from '../shaderCanvas'; // Background shader
+import TransparentTopBar from '../../components/TransparentTopBar';
+import ShaderCanvas from '../shaderCanvas';
 import CustomButton from "../../components/CustomButton";
+import { router } from 'expo-router';
 
 const screenWidth = Dimensions.get('window').width;
-
-const RequestData = {
-  approved: 12,
-  total: 45,
-  expired: 12,
-  pending: 12,
-};
-
-const dummyTimeSeriesData = {
-  approvals: [5, 10, 15, 20, 10, 12, 18, 14, 25, 12],
-  rejects: [3, 5, 8, 6, 5, 7, 10, 5, 8, 6],
-  deliveries: [20, 15, 12, 10, 12, 18, 14, 18, 15, 22],
-};
 
 const AnalysisDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const handleApprove = () => {
-    console.log("Download");
+  const [requestData, setRequestData] = useState({
+    approved: 0,
+    total: 0,
+    expired: 0,
+    pending: 0,
+  });
+  const [timeSeriesData, setTimeSeriesData] = useState({
+    approvals: [0],
+    rejects: [0],
+    deliveries: [0],
+  });
+
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+  const fetchAnalyticsData = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${apiUrl}/api/fsr/get/analytics`);
+      if (!response.ok) throw new Error("Failed to fetch analytics data");
+
+      const data = await response.json();
+      setRequestData({
+        approved: data.approvedCount || 0,
+        total: data.totalCount || 0,
+        expired: data.expiredCount || 0,
+        pending: data.pendingCount || 0,
+      });
+      setTimeSeriesData({
+        approvals: data.approvalsOverTime.length ? data.approvalsOverTime : [0],
+        rejects: data.rejectsOverTime.length ? data.rejectsOverTime : [0],
+        deliveries: data.deliveriesOverTime.length ? data.deliveriesOverTime : [0],
+      });
+      setLoading(false);
+    } catch (err) {
+      setError(true);
+      setLoading(false);
+    }
+  };
+
+  const handleBackPress = () => {
+    router.push("/expert-dashboard");
   };
 
   useEffect(() => {
-    // Fetch data from server or backend here (dummy for now)
-    const fetchData = async () => {
-      try {
-        // Simulate fetch
-        setTimeout(() => {
-          setLoading(false);
-        }, 2000);
-      } catch (err) {
-        setError(true);
-      }
-    };
-
-    fetchData();
+    fetchAnalyticsData();
   }, []);
+
+  const SkeletonLoader = () => (
+    <View className="px-3 mt-6 w-full h-full">
+      <TransparentTopBar title="Analysis Dashboard" onBackPress={handleBackPress} />
+      <View className="flex-row justify-between mb-4">
+        <SkeletonCard />
+        <SkeletonCard />
+      </View>
+      <View className="flex-row justify-between mb-4">
+        <SkeletonCard />
+        <SkeletonCard />
+      </View>
+      <View className="bg-gray-200 h-40 rounded-xl mt-5 mb-5"></View>
+      <View className="bg-gray-200 h-20 rounded-xl mb-5"></View>
+    </View>
+  );
+
+  const SkeletonCard = () => (
+    <View className="bg-gray-200 p-5 rounded-xl w-[47%] h-24" />
+  );
+
+  const ErrorState = () => (
+    <SafeAreaView className="flex-1 justify-center items-center bg-white">
+      <Text className="text-lg text-red-500">
+        Failed to load data. Check your network connection.
+      </Text>
+      <TouchableOpacity
+        onPress={fetchAnalyticsData}
+        className="bg-blue-500 p-3 mt-3 rounded"
+      >
+        <Text className="text-white">Retry</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
+  );
 
   if (loading) {
     return (
-      <SafeAreaView className="flex-1 justify-center items-center bg-white">
-        <ActivityIndicator size="large" color="#0000ff" />
+      <SafeAreaView className="flex-1 bg-white">
+        <SkeletonLoader />
       </SafeAreaView>
     );
   }
 
-  // Pie chart data (RequestData)
-  const pieChartData = [
-    { name: 'Approved', count: RequestData.approved, color: '#4caf50', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-    { name: 'Pending', count: RequestData.pending, color: '#2196f3', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-    { name: 'Expired', count: RequestData.expired, color: '#f44336', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-    { name: 'Total', count: RequestData.total, color: '#ffeb3b', legendFontColor: '#7F7F7F', legendFontSize: 15 },
-  ];
+  if (error) {
+    return <ErrorState />;
+  }
 
-  const downloadData = [
-    ['Date', 'Approvals', 'Rejects', 'Deliveries'],
-    ['2023-01', 5, 3, 20],
-    ['2023-02', 10, 5, 15],
-    ['2023-03', 15, 8, 12],
-    // Add more rows as needed...
+  const pieChartData = [
+    { name: 'Approved', count: requestData.approved, color: '#4caf50', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'Pending', count: requestData.pending, color: '#2196f3', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'Expired', count: requestData.expired, color: '#f44336', legendFontColor: '#7F7F7F', legendFontSize: 15 },
+    { name: 'Total', count: requestData.total, color: '#ffeb3b', legendFontColor: '#7F7F7F', legendFontSize: 15 },
   ];
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <ShaderCanvas />
 
-      {/* Transparent Top Bar */}
-      <TransparentTopBar title="Analysis Dashboard" />
+      <TransparentTopBar title="Analysis Dashboard" onBackPress={handleBackPress} />
 
       <ScrollView className="p-4">
-        {/* Pie Chart */}
         <View className="mb-5">
           <Text className="text-lg font-semibold text-center mb-2">Request Analysis</Text>
           <PieChart
@@ -95,7 +136,6 @@ const AnalysisDashboard = () => {
           />
         </View>
 
-        {/* Line Chart for Approvals and Rejects Over Time */}
         <View className="mb-5">
           <Text className="text-lg font-semibold text-center mb-2">Approvals vs Rejects Over Time</Text>
           <LineChart
@@ -103,19 +143,17 @@ const AnalysisDashboard = () => {
               labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
               datasets: [
                 {
-                  data: dummyTimeSeriesData.approvals,
-                  color: (opacity = 1) => `rgba(34, 202, 34, ${opacity})`, // Green
+                  data: timeSeriesData.approvals,
+                  color: (opacity = 1) => `rgba(34, 202, 34, ${opacity})`,
                 },
                 {
-                  data: dummyTimeSeriesData.rejects,
-                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`, // Red
+                  data: timeSeriesData.rejects,
+                  color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
                 },
               ],
             }}
             width={screenWidth - 20}
             height={220}
-            yAxisLabel=""
-            yAxisSuffix=""
             chartConfig={{
               backgroundColor: '#e26a00',
               backgroundGradientFrom: '#fb8c00',
@@ -140,7 +178,6 @@ const AnalysisDashboard = () => {
           />
         </View>
 
-        {/* Line Chart for Deliveries Over Time */}
         <View className="mb-5">
           <Text className="text-lg font-semibold text-center mb-2">Delivery Before Expiration Over Time</Text>
           <LineChart
@@ -148,8 +185,8 @@ const AnalysisDashboard = () => {
               labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
               datasets: [
                 {
-                  data: dummyTimeSeriesData.deliveries,
-                  color: (opacity = 1) => `rgba(0, 128, 255, ${opacity})`, // Blue
+                  data: timeSeriesData.deliveries,
+                  color: (opacity = 1) => `rgba(0, 128, 255, ${opacity})`,
                 },
               ],
             }}
@@ -179,14 +216,12 @@ const AnalysisDashboard = () => {
           />
         </View>
 
-        {/* Download Button */}
         <CustomButton
-              title="Downlaod"
-              handlePress={handleApprove}
-              containerStyles="w-full"
-              textStyles="text-lg"
-            />
-       
+          title="Download"
+          handlePress={() => console.log("Download triggered")}
+          containerStyles="w-full mb-5"
+          textStyles="text-lg"
+        />
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, Image, TouchableOpacity, ScrollView,Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from '@react-native-picker/picker';
@@ -14,7 +14,7 @@ const timeOptions = [6, 12, 24, 1, 3, 7, 30, 60];
 const PendingRequests = () => {
   const [selectedTag, setSelectedTag] = useState();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [foodLifeTime, setFoodLifeTime] = useState(24); 
+  const [foodLifeTime, setFoodLifeTime] = useState(); 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("");
@@ -31,7 +31,6 @@ const PendingRequests = () => {
       try {
         const response = await fetch(`${apiUrl}/api/fsr/get/${imageId}`);
         const data = await response.json();
-        console.log(`${apiUrl}/api/fsr/get/${imageId}`)
         setTitle(data.title);
         setDescription(data.description);
         setStatus(data.status);
@@ -61,10 +60,49 @@ const PendingRequests = () => {
     }
   };
 
-  const handleApprove = () => {
-    console.log("Request Approved!");
-    // Add your approve functionality here
+  const handleApprove = async () => {
+    Alert.alert(
+      "Confirm Submission",
+      "Are you sure you want to submit this request?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Submit",
+          onPress: async () => {
+            try {
+              const response = await fetch(`${apiUrl}/put/submit/${imageId}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  status: selectedTag,
+                  foodLifeTime: foodLifeTime,
+                }),
+              });
+  
+              if (response.ok) {
+                const updatedItem = await response.json();
+                Alert.alert("Success", "Submission successful!");
+                router.push("/expert-dashboard");
+              } else {
+                const errorData = await response.json();
+                Alert.alert("Error", `Submission failed: ${errorData.message}`);
+              }
+            } catch (error) {
+              Alert.alert("Error", "An error occurred during submission.");
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
+  
+  
 
   const handleIncrementTime = () => {
     if (selectedTag !== "Expired") {
@@ -150,7 +188,7 @@ const PendingRequests = () => {
             <Text className="mb-2 font-bold">Assign Tag</Text>
             <View className="border rounded-lg overflow-hidden">
               <Picker selectedValue={selectedTag} onValueChange={(itemValue) => setSelectedTag(itemValue)}>
-                <Picker.Item label="Select Tag" value="" />
+                <Picker.Item label="Select Tag" value="Pending" />
                 <Picker.Item label="Approved" value="Approved" />
                 <Picker.Item label="Rejected" value="Rejected" />
                 <Picker.Item label="Expired" value="Expired" />
