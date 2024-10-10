@@ -266,7 +266,7 @@ const PendingApprovalCard = ({ description, images, to }) => {
               if (!to) {
                 Alert.alert('No id found');
               }
-              router.push(`/pending-requests/${to}`);
+              router.replace(`/pending-requests/${to}`);
             }}
             style={{
               shadowColor: "#000",
