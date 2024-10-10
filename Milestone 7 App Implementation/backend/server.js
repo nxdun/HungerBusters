@@ -4,6 +4,7 @@ const app = express();
 const cors = require('cors');
 const connection = require('./db');
 const helmet = require('helmet');
+const path = require('path');
 
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Use your secret key
@@ -17,6 +18,8 @@ const foodRoutes = require('./routes/foodRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
 const FoodSubmissionRoutes = require('./routes/FoodSubmissionRoutes');
 
+
+
 // Connect to database
 connection();
 
@@ -26,6 +29,8 @@ app.use(express.json());
 app.use(cors({
     origin: '*', // Allow all origins (for development; be specific in production)
 }));
+// Middleware to serve static files from the uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(helmet());
 

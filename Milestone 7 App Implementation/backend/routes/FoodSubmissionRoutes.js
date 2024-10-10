@@ -242,11 +242,13 @@ router.put("/put/submit/:id", async (req, res) => {
       return res.status(404).json({ message: "Item not found" });
     }
 
-    res.json(updatedFoodSch);
+    res.status(200).json({
+      message:  "Successfully submitted the item",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Error updating Item, Please submit a support request if the issue persists.",
+      message: error|| "An error occurred while submitting the item",
     });
   }
 });

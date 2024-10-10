@@ -19,6 +19,17 @@ const AddFood = () => {
     dietaryFiber: '',
     sugar: '',
     protein: '',
+    vitamins: {
+      vitaminC: '',
+      vitaminD: '',
+      vitaminB6: '',
+      cobalamin: '',
+    },
+    minerals: {
+      calcium: '',
+      iron: '',
+      magnesium: '',
+    },
   });
   const [selectedImage, setSelectedImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,6 +38,10 @@ const AddFood = () => {
 
   const handleChangeText = (field, value) => {
     setForm({ ...form, [field]: value });
+  };
+
+  const handleNestedChangeText = (parent, field, value) => {
+    setForm({ ...form, [parent]: { ...form[parent], [field]: value } });
   };
 
   const pickImage = async () => {
@@ -51,7 +66,13 @@ const AddFood = () => {
     setError('');
 
     // Validate form fields
-    const requiredFields = Object.keys(form).filter(field => !form[field]);
+    const requiredFields = Object.keys(form).filter(field => {
+      if (typeof form[field] === 'object') {
+        return Object.keys(form[field]).some(subField => !form[field][subField]);
+      }
+      return !form[field];
+    });
+
     if (requiredFields.length > 0) {
       setError('All fields are required.');
       setIsSubmitting(false);
@@ -67,8 +88,15 @@ const AddFood = () => {
     try {
       const formData = new FormData();
       Object.keys(form).forEach(key => {
-        formData.append(key, form[key]);
+        if (typeof form[key] === 'object') {
+          Object.keys(form[key]).forEach(subKey => {
+            formData.append(`${key}.${subKey}`, form[key][subKey]);
+          });
+        } else {
+          formData.append(key, form[key]);
+        }
       });
+
       formData.append('image', {
         uri: selectedImage,
         type: 'image/jpeg',
@@ -95,6 +123,17 @@ const AddFood = () => {
         dietaryFiber: '',
         sugar: '',
         protein: '',
+        vitamins: {
+          vitaminC: '',
+          vitaminD: '',
+          vitaminB6: '',
+          cobalamin: '',
+        },
+        minerals: {
+          calcium: '',
+          iron: '',
+          magnesium: '',
+        },
       });
       setSelectedImage(null);
     } catch (error) {
@@ -184,6 +223,59 @@ const AddFood = () => {
             title="Protein"
             value={form.protein}
             handleChangeText={(value) => handleChangeText('protein', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+
+<FormField
+            title="Vitamin C"
+            value={form.vitamins.vitaminC}
+            handleChangeText={(value) => handleNestedChangeText('vitamins', 'vitaminC', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Vitamin D"
+            value={form.vitamins.vitaminD}
+            handleChangeText={(value) => handleNestedChangeText('vitamins', 'vitaminD', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Vitamin B6"
+            value={form.vitamins.vitaminB6}
+            handleChangeText={(value) => handleNestedChangeText('vitamins', 'vitaminB6', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Cobalamin"
+            value={form.vitamins.cobalamin}
+            handleChangeText={(value) => handleNestedChangeText('vitamins', 'cobalamin', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+
+          {/* Minerals Section */}
+          <Text className="text-xl text-white mt-7">Minerals</Text>
+          <FormField
+            title="Calcium"
+            value={form.minerals.calcium}
+            handleChangeText={(value) => handleNestedChangeText('minerals', 'calcium', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Iron"
+            value={form.minerals.iron}
+            handleChangeText={(value) => handleNestedChangeText('minerals', 'iron', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Magnesium"
+            value={form.minerals.magnesium}
+            handleChangeText={(value) => handleNestedChangeText('minerals', 'magnesium', value)}
             otherStyles="mt-7"
             keyboardType="numeric"
           />

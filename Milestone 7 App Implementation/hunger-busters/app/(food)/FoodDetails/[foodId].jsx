@@ -231,7 +231,7 @@ const FoodDetails = () => {
             <Text style={styles.tableCell}>{food.sugar} g</Text>
           )}
         </View>
-        <View style={styles.tableRow}>
+        {/* <View style={styles.tableRow}>
           <Text style={styles.tableCell}>Protein:</Text>
           {editMode ? (
             <TextInput 
@@ -243,11 +243,11 @@ const FoodDetails = () => {
           ) : (
             <Text style={styles.tableCell}>{food.protein} g</Text>
           )}
-        </View>
+         </View>
 
-        <View style={styles.tableHeader}>
+         <View style={styles.tableHeader}>
           <Text style={styles.tableHeaderText}>Vitamins</Text>
-        </View>
+         </View>
         <View style={styles.tableRow}>
           <Text style={styles.tableCell}>Vitamin C:</Text>
           {editMode ? (
@@ -303,7 +303,7 @@ const FoodDetails = () => {
           ) : (
             <Text style={styles.tableCell}>{food.minerals?.iron || 0} mg</Text>
           )}
-        </View>
+        </View> */}
       </View>
 
       <View style={styles.buttonContainer}>
