@@ -34,6 +34,11 @@ const Donations = () => {
           handlePress={()=> router.push('/donation-request')}
           containerStyles="w-full mt-7" 
           />
+
+          <CustomButton title="My Donations"
+          handlePress={()=> router.push('/myDonations')}
+          containerStyles="w-full mt-7" 
+          />
         
         </View>
         </AppGradient>

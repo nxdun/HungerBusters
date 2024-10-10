@@ -5,6 +5,7 @@ import { useStripe } from '@stripe/stripe-react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppGradient from "@/components/AppGradient";
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Donate = () => {
   const navigation = useNavigation(); // Access navigation
@@ -15,6 +16,25 @@ const Donate = () => {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+
+  // New state for the user's email
+  const [userEmail, setUserEmail] = useState(null);
+
+  // Fetch the logged-in user's email or use a static email if not logged in
+  const getEmail = async () => {
+    try {
+      const storedEmail = await AsyncStorage.getItem('userEmail'); // Get userEmail from AsyncStorage
+      setUserEmail(storedEmail || 'customer@example.com'); // Fallback to static email if no email is found
+    } catch (error) {
+      console.error('Error fetching email from AsyncStorage:', error);
+      setUserEmail('customer@example.com'); // Fallback to static email on error
+    }
+  };
+
+  useEffect(() => {
+    getEmail();
+    fetchApprovedDonations();
+  }, []);
 
   const fetchApprovedDonations = async () => {
     try {
@@ -47,9 +67,7 @@ const Donate = () => {
     }
   };
 
-  useEffect(() => {
-    fetchApprovedDonations();
-  }, []);
+  
 
   const handleSubscribe = (request) => {
     setSelectedRequest(request);
@@ -63,7 +81,7 @@ const Donate = () => {
       const priceId = subscriptionType === 'monthly' ? selectedRequest.monthlyPriceId : selectedRequest.annualPriceId;
   
       const response = await axios.post(`${apiUrl}/create-subscription`, {
-        email: "customer@example.com",  // Replace with actual email from the user
+        email: userEmail,  // Replace with actual email from the user
         priceId,
       });
   
