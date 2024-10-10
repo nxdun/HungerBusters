@@ -5,6 +5,9 @@ const cors = require('cors');
 const connection = require('./db');
 const helmet = require('helmet');
 
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); // Use your secret key
+
 // Import routes
 const UserRoutes = require('./routes/users');
 const AuthRoutes = require('./routes/auth');
@@ -41,6 +44,35 @@ app.use('/api/fsr',FoodSubmissionRoutes);
 
 //please add a space before adding route to avoid conflict
 
+// Create Stripe customer and subscription
+app.post('/create-subscription', async (req, res) => {
+  const { email, priceId } = req.body;
+
+  try {
+    // Create a new customer if one doesn't exist
+    const customer = await stripe.customers.create({
+      email,
+    });
+
+    // Create the subscription and expand the latest_invoice and payment_intent
+    const subscription = await stripe.subscriptions.create({
+      customer: customer.id,
+      items: [{ price: priceId }],
+      payment_behavior: 'default_incomplete',
+      payment_settings: { save_default_payment_method: 'on_subscription' },
+      expand: ['latest_invoice.payment_intent'],
+    });
+
+    // Send the client_secret to the frontend
+    res.json({
+      clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+      subscriptionId: subscription.id,
+    });
+  } catch (error) {
+    console.error('Error creating subscription:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
 
 // Define the port for the server to listen on
 const port = process.env.PORT || 3543;

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import axios from 'axios';
-import { Ionicons } from '@expo/vector-icons'; // For icons
+import { useStripe } from '@stripe/stripe-react-native';
 
 const Donate = () => {
+  const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [approvedRequests, setApprovedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -17,18 +18,26 @@ const Donate = () => {
       ]);
 
       const combinedRequests = [
-        ...schoolResponse.data.map(request => ({ ...request, type: 'school' })),
-        ...elderResponse.data.map(request => ({ ...request, type: 'elder' })),
+        ...schoolResponse.data.map(request => ({
+          ...request,
+          type: 'school',
+          monthlyPriceId: 'price_1Q7xDqG4mkmOcCt5dX6Bd5RN',
+          annualPriceId: 'price_1Q7xFSG4mkmOcCt580QetHxB'
+        })),
+        ...elderResponse.data.map(request => ({
+          ...request,
+          type: 'elder',
+          monthlyPriceId: 'price_1Q7xDqG4mkmOcCt5dX6Bd5RN',
+          annualPriceId: 'price_1Q7xFSG4mkmOcCt580QetHxB'
+        })),
       ];
 
-      // Filter to include only approved donations
       const approvedOnly = combinedRequests.filter(request => request.approved);
       setApprovedRequests(approvedOnly);
       setLoading(false);
     } catch (err) {
       setError('Failed to load approved donations.');
       setLoading(false);
-      console.error('Error fetching approved donations:', err);
     }
   };
 
@@ -36,8 +45,41 @@ const Donate = () => {
     fetchApprovedDonations();
   }, []);
 
-  const handleDonate = (request) => {
-    Alert.alert("Donate", `You are donating to ${request.type === 'school' ? request.schoolName : request.elderHomeName}`);
+  const handleDonate = async (request, subscriptionType) => {
+    try {
+      const priceId = subscriptionType === 'monthly' ? request.monthlyPriceId : request.annualPriceId;
+  
+      const response = await axios.post(`${apiUrl}/create-subscription`, {
+        email: "customer@example.com",  // Replace with actual email from the user
+        priceId,
+      });
+  
+      console.log("Subscription response:", response.data); // Add this log for debugging
+  
+      const { clientSecret } = response.data;
+  
+      const { error: initError } = await initPaymentSheet({
+        paymentIntentClientSecret: clientSecret,
+        allowsDelayedPaymentMethods: true,
+        merchantDisplayName: 'HungerBuster', // Replace with your actual business name
+      });
+  
+      if (initError) {
+        console.error("Init PaymentSheet error:", initError); // Add this log for debugging
+        return Alert.alert("Error", "Failed to initialize payment sheet");
+      }
+  
+      const { error: paymentError } = await presentPaymentSheet();
+  
+      if (paymentError) {
+        Alert.alert("Payment failed", paymentError.message);
+      } else {
+        Alert.alert("Payment successful", "Thank you for your donation!");
+      }
+    } catch (err) {
+      console.error("Error in donation:", err);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
   };
 
   const renderItem = ({ item }) => (
@@ -46,29 +88,28 @@ const Donate = () => {
         {item.type === 'school' ? item.schoolName : item.elderHomeName}
       </Text>
       <View className="flex flex-row items-center">
-        <Ionicons name="person-outline" size={18} color="#4A90E2" />
         <Text className="text-gray-600 ml-2">
           {item.type === 'school' ? item.principalName : item.contactPerson}
         </Text>
       </View>
-      <View className="flex flex-row items-center">
-        <Ionicons name="location-outline" size={18} color="#4A90E2" />
-        <Text className="text-gray-600 ml-2">
-          {item.type === 'school' ? item.address : item.elderHomeAddress}
-        </Text>
-      </View>
-      <View className="flex flex-row items-center">
-        <Ionicons name="call-outline" size={18} color="#4A90E2" />
-        <Text className="text-gray-600 ml-2">{item.contactNumber}</Text>
-      </View>
 
-      {/* Donate Button */}
-      <TouchableOpacity
-        className="bg-green-500 py-2 px-4 rounded-lg mt-4"
-        onPress={() => handleDonate(item)}
-      >
-        <Text className="text-white text-center font-semibold">Donate</Text>
-      </TouchableOpacity>
+      <View className="flex flex-row justify-between mt-4">
+        {/* Monthly Donation Button */}
+        <TouchableOpacity
+          className="bg-green-500 py-2 px-4 rounded-lg"
+          onPress={() => handleDonate(item, 'monthly')}
+        >
+          <Text className="text-white text-center font-semibold">Donate Monthly</Text>
+        </TouchableOpacity>
+
+        {/* Annual Donation Button */}
+        <TouchableOpacity
+          className="bg-blue-500 py-2 px-4 rounded-lg"
+          onPress={() => handleDonate(item, 'annual')}
+        >
+          <Text className="text-white text-center font-semibold">Donate Annually</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 

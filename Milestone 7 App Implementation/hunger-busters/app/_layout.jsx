@@ -1,11 +1,11 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native';
 import { useEffect } from "react";
 import { SplashScreen, Stack } from "expo-router";
 import { useFonts } from "expo-font";
+import { StripeProvider } from '@stripe/stripe-react-native';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
 
 const RootLayout = () => {
   const [fontsLoaded, error] = useFonts({
@@ -28,16 +28,13 @@ const RootLayout = () => {
     }
   }, [fontsLoaded, error]);
 
-  if (!fontsLoaded) {
-    return null;
-  }
-
   if (!fontsLoaded && !error) {
     return null;
   }
 
   return (
-    <Stack>
+    <StripeProvider publishableKey={process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY}>
+      <Stack>
         <Stack.Screen name="index" options={{ headerShown:false }}/>
         <Stack.Screen name="(auth)" options={{ headerShown:false }}/>
         <Stack.Screen name="(tabs)" options={{ headerShown:false }}/>
@@ -45,10 +42,9 @@ const RootLayout = () => {
         <Stack.Screen name="(experts)" options={{ headerShown:false }}/>
         <Stack.Screen name="(admin)" options={{ headerShown:false }}/>
         <Stack.Screen name="(foods)" options={{ headerShown:false }}/>
+      </Stack>
+    </StripeProvider>
+  );
+};
 
-        {/* <Stack.Screen name="/search/[query]" options={{ headerShown:false }}/> */}
-    </Stack>
-  )
-}
-
-export default RootLayout
+export default RootLayout;
