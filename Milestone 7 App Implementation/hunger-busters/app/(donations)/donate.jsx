@@ -55,34 +55,41 @@ const Donate = () => {
 
   const handleDonate = async (subscriptionType) => {
     if (!selectedRequest) return;
-
+  
     try {
       const priceId = subscriptionType === 'monthly' ? selectedRequest.monthlyPriceId : selectedRequest.annualPriceId;
-
+  
       const response = await axios.post(`${apiUrl}/create-subscription`, {
         email: "customer@example.com",  // Replace with actual email from the user
         priceId,
       });
-
+  
       const { clientSecret } = response.data;
-
+  
       const { error: initError } = await initPaymentSheet({
         paymentIntentClientSecret: clientSecret,
         allowsDelayedPaymentMethods: true,
         merchantDisplayName: 'HungerBuster',
       });
-
+  
       if (initError) {
         console.error("Init PaymentSheet error:", initError);
         return Alert.alert("Error", "Failed to initialize payment sheet");
       }
-
+  
       const { error: paymentError } = await presentPaymentSheet();
-
+  
       if (paymentError) {
         Alert.alert("Payment failed", paymentError.message);
       } else {
-        Alert.alert("Payment successful", "Thank you for your donation!");
+        // Get the donation name based on the type (school or elder)
+        const donationName = selectedRequest.type === 'school' ? selectedRequest.schoolName : selectedRequest.elderHomeName;
+  
+        // Show the notification alert with the donation name and subscription type
+        const subscriptionMessage = `You have successfully subscribed to ${donationName} with a ${subscriptionType} plan!`;
+        Alert.alert("Subscription Successful", subscriptionMessage);
+  
+        // You can perform any other actions here, like updating the UI or resetting state
       }
     } catch (err) {
       console.error("Error in donation:", err);
@@ -114,7 +121,7 @@ const Donate = () => {
         <Text className="text-gray-600 ml-2">{item.contactNumber}</Text>
       </View>
       <TouchableOpacity
-        className="bg-indigo-600 py-3 px-5 rounded-lg shadow-md"
+        className="bg-green-500 py-3 px-5 rounded-lg shadow-md"
         onPress={() => handleSubscribe(item)}
       >
         <Text className="text-white text-center font-semibold">Subscribe</Text>
@@ -149,7 +156,7 @@ const Donate = () => {
 
   return (
     <View className="flex-1 p-5 bg-gray-100">
-      <Text className="text-3xl font-bold mb-8 text-center text-gray-900">Available Donations</Text>
+      <Text className="text-3xl font-bold mb-8 text-center text-gray-900 p-4">Available <Text className="text-secondary-200">Donations</Text></Text>
 
       <FlatList
         data={approvedRequests}

@@ -5,32 +5,23 @@ import React from 'react'
 
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
+import AppGradient from "@/components/AppGradient";
 
 const Donations = () => {
   return (
-    <SafeAreaView>
-    <ScrollView>
-      <View className="flex px-4 space-y-6 bg-primary">
-        <View className="flex justify-between items-start flex-row mb-6">
-          <View>
-            <Text className="text-2xl font-psemibold text-white">
-              HungerBusters
+    <View className="flex-1">
+    <AppGradient
+          // Background Linear Gradient
+          colors={["#161b2e", "#0a4d4a", "#766e67"]}
+    >
+      <View className="mb-6">
+      <Text className="text-3xl font-bold text-center text-white">
+              Welcome to<Text className="text-secondary-200"> Hunger Busters</Text>
             </Text>
-          </View>
-
-          <View className="mt-1.5">
-            <Image
-              source={images.logo}
-              className="w-10 h-10"
-              resizeMode="contain"
-            />
-          </View>
         </View>
-        </View>
-        
         <View className="w-full justify-center items-center min-h-[85vh] px-4">
 
-        <Text className="text-2xl font-psemibold text-black">
+        <Text className="text-center text-white font-bold text-4xl">
               Donations
         </Text>
 
@@ -45,9 +36,8 @@ const Donations = () => {
           />
         
         </View>
-        
-      </ScrollView>
-</SafeAreaView>
+        </AppGradient>
+        </View>
   )
 }
 
