@@ -5,9 +5,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "../constants";
 import CustomButton from "../components/CustomButton";
-
+import { LogBox } from 'react-native';
 export default function App() {
-  return (
+  LogBox.ignoreAllLogs(); //it ignore all the logs from app, shows in console
+    return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView contentContainerStyle={{ height:'100%'}}>
         <View className="w-full justify-center items-center min-h-[85vh] px-4">

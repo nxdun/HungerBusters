@@ -188,7 +188,9 @@ const SkeletonLoader = (handleBackPress) => {
     <View className="px-3 mt-6 w-full h-full">
       <TransparentTopBar
         title="Experts Dashboard"
-        onBackPress={handleBackPress}
+        onBackPress={() => {
+          router.push("/");
+        }}
       />
       <View className="flex-row justify-between mb-4">
         <SkeletonCard />
