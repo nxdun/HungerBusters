@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions, Platform } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Platform} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PieChart, LineChart } from 'react-native-chart-kit';
 import TransparentTopBar from '../../components/TransparentTopBar';
@@ -8,7 +8,9 @@ import CustomButton from "../../components/CustomButton";
 import { router } from 'expo-router';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-
+import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur'; 
+import { Asset } from 'expo-asset';
 const screenWidth = Dimensions.get('window').width;
 
 const AnalysisDashboard = () => {
@@ -54,7 +56,7 @@ const AnalysisDashboard = () => {
   };
 
   const handleBackPress = () => {
-    router.push("/expert-dashboard");
+    router.replace("/expert-dashboard");
   };
 
   useEffect(() => {
@@ -117,6 +119,25 @@ const AnalysisDashboard = () => {
     }
   };
 
+  const handleCert = async () => {
+    try {
+      // Load the certificate from the assets folder
+      const certAsset = Asset.fromModule(require('../../assets/Certification.pdf'));  // <-- Ensure the path to the file is correct
+      await certAsset.downloadAsync();
+  
+      const certUri = certAsset.localUri || certAsset.uri;  // Get the file URI
+  
+      // Share the certificate
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        await Sharing.shareAsync(certUri);
+      } else {
+        console.log("File saved at: ", certUri);
+      }
+    } catch (error) {
+      console.error("Error handling certificate file:", error);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
@@ -141,8 +162,25 @@ const AnalysisDashboard = () => {
     <SafeAreaView className="flex-1 bg-white">
       <ShaderCanvas />
 
-      <TransparentTopBar title="Analysis Dashboard" onBackPress={handleBackPress} />
+      <View className="p-1 shadow-sm">
+      <BlurView intensity={110} tint="light" className="rounded-b-3xl">
+        <View className="flex-row justify-center items-center p-4">
+          <TouchableOpacity onPress={handleBackPress}>
+            <Ionicons name="arrow-back" size={24} color="black" />
+          </TouchableOpacity>
+          <Text className="text-xl font-bold text-black flex-1 text-left pl-5">
+          Analysis Dashboard
+          </Text>
 
+          <TouchableOpacity onPress={handleCert} className="text-center ">
+            <Text className="text-sm font-pbold text-green-700">
+              Certificate
+            </Text>
+
+          </TouchableOpacity>
+        </View>
+      </BlurView>
+    </View>
       <ScrollView className="p-4">
         <View className="mb-5">
           <Text className="text-lg font-semibold text-center mb-2">Request Analysis</Text>
