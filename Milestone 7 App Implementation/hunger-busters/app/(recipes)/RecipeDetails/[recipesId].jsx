@@ -241,28 +241,47 @@ const RecipeDetails = () => {
         </>
       )}
 
-      <Text style={styles.label}>Ingredients:</Text>
-      {editMode ? (
-        <TextInput
-          style={styles.input}
-          value={recipe.ingredients}
-          onChangeText={(text) => handleInputChange('ingredients', text)}
-          multiline
-        />
-      ) : (
-        <Text style={styles.description}>{recipe.ingredients || 'N/A'}</Text>
-      )}
-      <Text style={styles.label}>Method:</Text>
-      {editMode ? (
-        <TextInput
-          style={styles.input}
-          value={recipe.method}
-          onChangeText={(text) => handleInputChange('method', text)}
-          multiline
-        />
-      ) : (
-        <Text style={styles.description}>{recipe.method || 'N/A'}</Text>
-      )}
+  {/* Ingredients Section */}
+  <Text style={styles.label}>Ingredients:</Text>
+  {editMode ? (
+    <TextInput
+      style={styles.input}
+      value={recipe.ingredients.join('\n')} // Join the array into a single string for editing
+      onChangeText={(text) => handleInputChange('ingredients', text.split('\n'))} // Split the input back into an array
+      multiline
+    />
+  ) : (
+    recipe.ingredients && recipe.ingredients.length > 0 ? (
+      <View style={styles.listContainer}>
+        {recipe.ingredients.map((ingredient, index) => (
+          <Text key={index} style={styles.listItem}>• {ingredient}</Text>
+        ))}
+      </View>
+    ) : (
+      <Text style={styles.description}>No ingredients available.</Text>
+    )
+  )}
+
+  {/* Method Section */}
+  <Text style={styles.label}>Method:</Text>
+  {editMode ? (
+    <TextInput
+      style={styles.input}
+      value={recipe.method.join('\n')} // Join the array into a single string for editing
+      onChangeText={(text) => handleInputChange('method', text.split('\n'))} // Split the input back into an array
+      multiline
+    />
+  ) : (
+    recipe.method && recipe.method.length > 0 ? (
+      <View style={styles.listContainer}>
+        {recipe.method.map((step, index) => (
+          <Text key={index} style={styles.listItem}>Step {index + 1}: {step}</Text>
+        ))}
+      </View>
+    ) : (
+      <Text style={styles.description}>No method available.</Text>
+    )
+  )}
 
       <Text style={styles.label}>Video Link:</Text>
       {editMode ? (
