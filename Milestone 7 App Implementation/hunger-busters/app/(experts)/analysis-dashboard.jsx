@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Dimensions, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { PieChart, LineChart } from 'react-native-chart-kit';
 import TransparentTopBar from '../../components/TransparentTopBar';
 import ShaderCanvas from '../shaderCanvas';
 import CustomButton from "../../components/CustomButton";
 import { router } from 'expo-router';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -93,6 +95,28 @@ const AnalysisDashboard = () => {
     </SafeAreaView>
   );
 
+  //downloades a file with the analytics data
+  const handleDownload = async () => {
+    const dataToExport = {
+      requestData,
+      timeSeriesData,
+    };
+
+    const fileUri = `${FileSystem.documentDirectory}analytics_data.txt`;
+    const dataAsString = JSON.stringify(dataToExport, null, 2);
+
+    try {
+      await FileSystem.writeAsStringAsync(fileUri, dataAsString);
+      if (Platform.OS === 'ios' || Platform.OS === 'android') {
+        await Sharing.shareAsync(fileUri);
+      } else {
+        console.log("File saved at: ", fileUri);
+      }
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
+
   if (loading) {
     return (
       <SafeAreaView className="flex-1 bg-white">
@@ -105,6 +129,7 @@ const AnalysisDashboard = () => {
     return <ErrorState />;
   }
 
+  //pre configured data for the pie chart like headers, colors and values
   const pieChartData = [
     { name: 'Approved', count: requestData.approved, color: '#4caf50', legendFontColor: '#7F7F7F', legendFontSize: 15 },
     { name: 'Pending', count: requestData.pending, color: '#2196f3', legendFontColor: '#7F7F7F', legendFontSize: 15 },
@@ -218,7 +243,7 @@ const AnalysisDashboard = () => {
 
         <CustomButton
           title="Download"
-          handlePress={() => console.log("Download triggered")}
+          handlePress={handleDownload}
           containerStyles="w-full mb-5"
           textStyles="text-lg"
         />
