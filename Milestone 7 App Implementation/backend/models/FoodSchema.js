@@ -7,7 +7,7 @@ const FoodSchema = new mongoose.Schema({
   description: { type: String, default: "no description provided" }, // Default description
   status: { 
     type: String, 
-    enum: ["On Refrigerator", "Pending", "Expired", "Completed", "Submitted"], 
+    enum: ["On Refrigerator" ,"Approved","Rejected", "Pending", "Expired", "Completed", "Submitted"], 
     default: "Submitted",
     required: true 
   },  // Status must be only one of these values used for analysis...
