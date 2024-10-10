@@ -1,38 +1,56 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
 import { Picker } from '@react-native-picker/picker';
-import { BlurView } from 'expo-blur'; // Import Expo Blur
-import { images } from "../../constants";
-import ShaderCanvas from "../shaderCanvas";
-import CustomButton from "../../components/CustomButton";
-import { router } from "expo-router";
-import TransparentTopBar from "../../components/TransparentTopBar"; // Importing the TransparentTopBar component
-const dummyRequest = {
-  title: "Request title",
-  submissionDate: "2024/08/12",
-  description: "fresh food, home made",
-  status: "On Refrigerator",
-  location: "Location",
-  deliveryDate: "2024/08/12",
-  foodLifeTime: 24, // Default to 24 Hours
-  images: [
-    { id: 1, source: images.logo },
-    { id: 2, source: images.profile },
-  ],
-};
+import { BlurView } from 'expo-blur'; 
+import { useRouter, useLocalSearchParams } from 'expo-router';  // Update import to useRouter and useSearchParams
+import ShaderCanvas from "../../shaderCanvas";
+import CustomButton from "../../../components/CustomButton";
+import TransparentTopBar from "../../../components/TransparentTopBar"; 
 
 const timeOptions = [6, 12, 24, 1, 3, 7, 30, 60]; 
 
 const PendingRequests = () => {
   const [selectedTag, setSelectedTag] = useState();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [foodLifeTime, setFoodLifeTime] = useState(dummyRequest.foodLifeTime);
-  const [title, setTitle] = useState(dummyRequest.title);
+  const [foodLifeTime, setFoodLifeTime] = useState(24); 
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("");
+  const [deliveryDate, setDeliveryDate] = useState("");
+  const [submissionDate, setSubmissionDate] = useState("");
+  const [images, setImages] = useState([]);
+  const { imageId }= useLocalSearchParams();  
+  const apiUrl = process.env.EXPO_PUBLIC_API_URL;
+  const router = useRouter();  // Use router from expo-router
+
+  // Fetch data from the server
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(`${apiUrl}/api/fsr/get/${imageId}`);
+        const data = await response.json();
+        console.log(`${apiUrl}/api/fsr/get/${imageId}`)
+        setTitle(data.title);
+        setDescription(data.description);
+        setStatus(data.status);
+        setDeliveryDate(data.deliveryDate);
+        setSubmissionDate(data.submissionDate);
+        setImages(data.images);
+        setFoodLifeTime(data.foodLifeTime);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+
+    if (imageId) {
+      fetchData(); 
+    }
+  }, [imageId]);
 
   const nextImage = () => {
-    if (currentImageIndex < dummyRequest.images.length - 1) {
+    if (currentImageIndex < images.length - 1) {
       setCurrentImageIndex(currentImageIndex + 1);
     }
   };
@@ -67,19 +85,15 @@ const PendingRequests = () => {
   };
 
   const handleBackPress = () => {
-    router.push("/expert-dashboard"); // Navigate back to home or any other page
+    router.push("/expert-dashboard");  // Use router.push to navigate
   };
 
   return (
     <SafeAreaView className="flex-1 bg-white relative">
-      {/* Shader Background */}
       <ShaderCanvas />
-
       <View className="flex-grow">
-        {/* top bar reusable component */}
         <TransparentTopBar title={title} onBackPress={handleBackPress} />
         <ScrollView contentContainerStyle={{ flexGrow: 1, paddingTop: 60 }}>
-          {/* Image Carousel with blur background */}
           <View className="items-center relative mb-4">
             <TouchableOpacity
               style={{ position: 'absolute', left: 10, top: '50%', transform: [{ translateY: -12 }] }}
@@ -89,7 +103,7 @@ const PendingRequests = () => {
             </TouchableOpacity>
             <BlurView intensity={90} tint="light" className="h-56 w-64 rounded-lg overflow-hidden border border-black">
               <Image
-                source={dummyRequest.images[currentImageIndex].source}
+                source={{ uri: images[currentImageIndex]?.source }}
                 className="h-full w-full"
                 resizeMode="cover"
               />
@@ -101,54 +115,41 @@ const PendingRequests = () => {
               <Ionicons name="chevron-forward" size={24} color="black" />
             </TouchableOpacity>
           </View>
-
-          {/* Request Details (blur box with a border and centered content) */}
           <BlurView intensity={90} tint="light" className="rounded-lg p-4 my-2 mx-4 border border-black">
             <Text className="font-bold">Submission Date:</Text>
-            <Text>{dummyRequest.submissionDate}</Text>
+            <Text>{new Date(submissionDate).toLocaleDateString()}</Text>
 
             <Text className="font-bold mt-2">Provided Description:</Text>
-            <Text>{dummyRequest.description}</Text>
+            <Text>{description}</Text>
 
             <Text className="font-bold mt-2">Current Status:</Text>
-            <Text>{dummyRequest.status}</Text>
+            <Text>{status}</Text>
 
             <Text className="font-bold mt-2">Approx. Location:</Text>
-            <Text>{dummyRequest.location}</Text>
+            <Text>Location Placeholder</Text>
 
             <Text className="font-bold mt-2">Delivery Date:</Text>
-            <Text>{dummyRequest.deliveryDate}</Text>
+            <Text>{new Date(deliveryDate).toLocaleDateString()}</Text>
           </BlurView>
 
-          {/* Time Adjustment */}
           <BlurView intensity={90} tint="light" className="rounded-lg p-4 my-2 mx-4 border border-black">
             <View className="flex-row items-center justify-between mt-2">
-              <TouchableOpacity
-                className="bg-gray-300 p-2 rounded-lg"
-                onPress={handleDecrementTime}
-              >
+              <TouchableOpacity className="bg-gray-300 p-2 rounded-lg" onPress={handleDecrementTime}>
                 <Ionicons name="remove" size={24} color="black" />
               </TouchableOpacity>
               <Text>
                 {selectedTag === "Expired" ? "NOT AVAILABLE" : `${foodLifeTime} ${foodLifeTime >= 24 ? 'Days' : 'Hours'}`}
               </Text>
-              <TouchableOpacity
-                className="bg-gray-300 p-2 rounded-lg"
-                onPress={handleIncrementTime}
-              >
+              <TouchableOpacity className="bg-gray-300 p-2 rounded-lg" onPress={handleIncrementTime}>
                 <Ionicons name="add" size={24} color="black" />
               </TouchableOpacity>
             </View>
           </BlurView>
 
-          {/* Assign Tag Dropdown */}
           <BlurView intensity={90} tint="light" className="px-4 py-3 rounded-lg mx-4 border border-black">
             <Text className="mb-2 font-bold">Assign Tag</Text>
             <View className="border rounded-lg overflow-hidden">
-              <Picker
-                selectedValue={selectedTag}
-                onValueChange={(itemValue) => setSelectedTag(itemValue)}
-              >
+              <Picker selectedValue={selectedTag} onValueChange={(itemValue) => setSelectedTag(itemValue)}>
                 <Picker.Item label="Select Tag" value="" />
                 <Picker.Item label="Approved" value="Approved" />
                 <Picker.Item label="Rejected" value="Rejected" />
@@ -157,19 +158,12 @@ const PendingRequests = () => {
             </View>
           </BlurView>
 
-          {/* Submit Button after tag assignment */}
           <View className="mt-4 mb-[70px] px-4">
-            <CustomButton
-              title="Submit"
-              handlePress={handleApprove}
-              containerStyles="w-full mb-4"
-              textStyles="text-lg"
-            />
+            <CustomButton title="Submit" handlePress={handleApprove} containerStyles="w-full mb-4" textStyles="text-lg" />
           </View>
         </ScrollView>
       </View>
     </SafeAreaView>
   );
 };
-
 export default PendingRequests;

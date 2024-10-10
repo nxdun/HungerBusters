@@ -1,62 +1,217 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import FormField from '../../components/FormField';
+import CustomButton from '../../components/CustomButton';
 import axios from 'axios';
-import { useRouter } from "expo-router";
+import * as ImagePicker from 'expo-image-picker';
 
 const AddFood = () => {
-  const [name, setName] = useState('');
-  const [calories, setCalories] = useState('');
-  const [fat, setFat] = useState('');
-  const [saturatedFat, setSaturatedFat] = useState('');
-  const [cholesterol, setCholesterol] = useState('');
-  const [sodium, setSodium] = useState('');
-  const [potassium, setPotassium] = useState('');
-  const [totalCarbs, setTotalCarbs] = useState('');
-  const [dietaryFiber, setDietaryFiber] = useState('');
-  const [sugar, setSugar] = useState('');
-  const [protein, setProtein] = useState('');
+  const [form, setForm] = useState({
+    name: '',
+    calories: '',
+    fat: '',
+    saturatedFat: '',
+    cholesterol: '',
+    sodium: '',
+    potassium: '',
+    totalCarbs: '',
+    dietaryFiber: '',
+    sugar: '',
+    protein: '',
+  });
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
-  const router = useRouter();
 
-  const handleSubmit = async () => {
+  const handleChangeText = (field, value) => {
+    setForm({ ...form, [field]: value });
+  };
+
+  const pickImage = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      Alert.alert('Permission to access camera roll is required!');
+      return;
+    }
+    
+    const pickerResult = await ImagePicker.launchImageLibraryAsync();
+    if (!pickerResult.canceled) {
+      setSelectedImage(pickerResult.assets[0].uri);
+    }
+  };
+
+  const removeImage = () => {
+    setSelectedImage(null);
+  };
+
+  const submit = async () => {
+    setIsSubmitting(true);
+    setError('');
+
+    // Validate form fields
+    const requiredFields = Object.keys(form).filter(field => !form[field]);
+    if (requiredFields.length > 0) {
+      setError('All fields are required.');
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (!selectedImage) {
+      setError('Please upload an image of the food item.');
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const response = await axios.post(`${apiUrl}/api/foods/add`, {
-        name,
-        calories: Number(calories),
-        fat: Number(fat),
-        saturatedFat: Number(saturatedFat),
-        cholesterol: Number(cholesterol),
-        sodium: Number(sodium),
-        potassium: Number(potassium),
-        totalCarbs: Number(totalCarbs),
-        dietaryFiber: Number(dietaryFiber),
-        sugar: Number(sugar),
-        protein: Number(protein),
+      const formData = new FormData();
+      Object.keys(form).forEach(key => {
+        formData.append(key, form[key]);
       });
+      formData.append('image', {
+        uri: selectedImage,
+        type: 'image/jpeg',
+        name: 'food.jpg',
+      });
+
+      const response = await axios.post(`${apiUrl}/api/foods/add`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
       Alert.alert('Success', response.data.message);
-      router.push('/foods'); // Navigate back to the food list
+      // Reset form after successful submission
+      setForm({
+        name: '',
+        calories: '',
+        fat: '',
+        saturatedFat: '',
+        cholesterol: '',
+        sodium: '',
+        potassium: '',
+        totalCarbs: '',
+        dietaryFiber: '',
+        sugar: '',
+        protein: '',
+      });
+      setSelectedImage(null);
     } catch (error) {
-      console.error("Error adding food", error);
-      Alert.alert('Error', 'Failed to add food');
+      console.error('Error adding food:', error);
+      setError(error.response?.data?.message || 'Failed to add food');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <View style={{ padding: 20 }}>
-      <Text style={{ fontSize: 24 }}>Add New Food</Text>
-      <TextInput placeholder="Food Name" value={name} onChangeText={setName} />
-      <TextInput placeholder="Calories" value={calories} onChangeText={setCalories} keyboardType="numeric" />
-      <TextInput placeholder="Fat" value={fat} onChangeText={setFat} keyboardType="numeric" />
-      <TextInput placeholder="Saturated Fat" value={saturatedFat} onChangeText={setSaturatedFat} keyboardType="numeric" />
-      <TextInput placeholder="Cholesterol" value={cholesterol} onChangeText={setCholesterol} keyboardType="numeric" />
-      <TextInput placeholder="Sodium" value={sodium} onChangeText={setSodium} keyboardType="numeric" />
-      <TextInput placeholder="Potassium" value={potassium} onChangeText={setPotassium} keyboardType="numeric" />
-      <TextInput placeholder="Total Carbs" value={totalCarbs} onChangeText={setTotalCarbs} keyboardType="numeric" />
-      <TextInput placeholder="Dietary Fiber" value={dietaryFiber} onChangeText={setDietaryFiber} keyboardType="numeric" />
-      <TextInput placeholder="Sugar" value={sugar} onChangeText={setSugar} keyboardType="numeric" />
-      <TextInput placeholder="Protein" value={protein} onChangeText={setProtein} keyboardType="numeric" />
-      <Button title="Add Food" onPress={handleSubmit} />
-    </View>
+    <SafeAreaView className="bg-primary h-full">
+      <ScrollView>
+        <View className="w-full justify-center min-h-[85vh] px-4 my-6">
+          <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Add New Food</Text>
+
+          <FormField
+            title="Food Name"
+            value={form.name}
+            handleChangeText={(value) => handleChangeText('name', value)}
+            otherStyles="mt-10"
+          />
+          <FormField
+            title="Calories"
+            value={form.calories}
+            handleChangeText={(value) => handleChangeText('calories', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Fat"
+            value={form.fat}
+            handleChangeText={(value) => handleChangeText('fat', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Saturated Fat"
+            value={form.saturatedFat}
+            handleChangeText={(value) => handleChangeText('saturatedFat', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Cholesterol"
+            value={form.cholesterol}
+            handleChangeText={(value) => handleChangeText('cholesterol', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Sodium"
+            value={form.sodium}
+            handleChangeText={(value) => handleChangeText('sodium', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Potassium"
+            value={form.potassium}
+            handleChangeText={(value) => handleChangeText('potassium', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Total Carbs"
+            value={form.totalCarbs}
+            handleChangeText={(value) => handleChangeText('totalCarbs', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Dietary Fiber"
+            value={form.dietaryFiber}
+            handleChangeText={(value) => handleChangeText('dietaryFiber', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Sugar"
+            value={form.sugar}
+            handleChangeText={(value) => handleChangeText('sugar', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+          <FormField
+            title="Protein"
+            value={form.protein}
+            handleChangeText={(value) => handleChangeText('protein', value)}
+            otherStyles="mt-7"
+            keyboardType="numeric"
+          />
+
+          <TouchableOpacity onPress={pickImage} className="mt-7 bg-secondary p-4 rounded-lg">
+            <Text className="text-white text-center">Upload Food Image</Text>
+          </TouchableOpacity>
+
+          {selectedImage && (
+            <View className="mt-4">
+              <Image source={{ uri: selectedImage }} style={{ width: 200, height: 200 }} />
+              <TouchableOpacity onPress={removeImage} className="bg-red-500 p-2 mt-2 rounded-lg">
+                <Text className="text-white text-center">Remove Image</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {error ? <Text className="text-red-500 mt-4">{error}</Text> : null}
+
+          <CustomButton
+            title="Add Food"
+            handlePress={submit}
+            containerStyles="mt-7"
+            isLoading={isSubmitting}
+          />
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 };
 

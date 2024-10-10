@@ -131,6 +131,8 @@ router.get("/get/dashboard-data", async (req, res) => {
 
     const tableData = await FoodSch.find()
       .select("submissionDate status deliveryDate")
+      .sort({ submissionDate: -1 }) // Sort by submissionDate in descending order
+      .limit(5) // Limited the result to the latest 5 entries
       .lean();
 
     const formattedTableData = tableData.map((entry) => [
@@ -141,11 +143,11 @@ router.get("/get/dashboard-data", async (req, res) => {
     ]);
 
     const pendingApprovals = await FoodSch.find({ status: "Pending" })
-      .select("_id images description")
+      .select("_id images description") 
       .lean();
 
-    const formattedPendingApprovals = pendingApprovals.map((entry, index) => ({
-      id: index + 1,
+    const formattedPendingApprovals = pendingApprovals.map((entry) => ({
+      id: entry._id, 
       images: entry.images,
       description: entry.description || "No description",
     }));
@@ -162,16 +164,17 @@ router.get("/get/dashboard-data", async (req, res) => {
     res.json(response);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: commonerrmsg });
+    res.status(500).json({ message: "An error occurred while fetching dashboard data" });
   }
 });
-//moved to bottom due to conflict with /get/:id
+
+//moved to bottom due to conflict with /get/:id-----------------------------------------------
 // GET a single FoodSch by ID
 // @route   GET /FoodSchs/:id
 // @desc    Get a single food FoodSch by its ID
 router.get("/get/:id", async (req, res) => {
   try {
-    const foodSch = await FoodSch.findById(req.params.id).select("-__v").lean();
+    const foodSch = await FoodSch.findById(req.params.id).select("-__v -_id -location").lean();
     if (!foodSch) return res.status(404).json({ message: "FoodSch not found" });
     res.json(foodSch);
   } catch (error) {

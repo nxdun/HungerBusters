@@ -46,7 +46,11 @@ const RecipeSchema = new mongoose.Schema({
   },
   videoLink: {
     type: String // YouTube video link (optional)
-  }
+  },
+  image: { // New field for the food image URL
+    type: String,
+    required: true,
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Recipe', RecipeSchema);
