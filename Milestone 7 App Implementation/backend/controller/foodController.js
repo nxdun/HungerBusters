@@ -3,9 +3,15 @@ const Food = require('../models/Food');
 // Add new food
 exports.addFood = async (req, res) => {
   try {
-    const { name, calories, fat, saturatedFat, cholesterol, sodium, potassium, totalCarbs, dietaryFiber, sugar, protein } = req.body;
-    const image = req.file.path; // Get the image path from the uploaded file
+    const {
+      name, calories, fat, saturatedFat, cholesterol, sodium, potassium,
+      totalCarbs, dietaryFiber, sugar, protein,
+      vitamins, minerals // Add vitamins and minerals here
+    } = req.body;
 
+    const image = req.file ? req.file.path : null; // Handle the image upload
+
+    // Create a new Food object with all fields
     const newFood = new Food({
       name,
       calories,
@@ -18,16 +24,21 @@ exports.addFood = async (req, res) => {
       dietaryFiber,
       sugar,
       protein,
+      vitamins, // Save vitamins in the database
+      minerals, // Save minerals in the database
       image,
     });
 
+    // Save the new food entry
     await newFood.save();
+
     res.status(201).json({ message: 'Food added successfully', food: newFood });
   } catch (error) {
     console.error('Error adding food:', error);
     res.status(400).json({ message: 'Error adding food', error: error.message });
   }
 };
+
 
 // Get all foods
 exports.getFoods = async (req, res) => {
