@@ -251,6 +251,63 @@ router.put("/put/submit/:id", async (req, res) => {
   }
 });
 
+// GET analytics data for dashboard
+// @route   GET /get/analytics
+// @desc    Retrieve analytics data for the dashboard, including approval counts, time series data, etc.
+router.get("/get/analytics", async (req, res) => {
+  try {
+    const approvedCount = await FoodSch.countDocuments({ status: "Approved" });
+    const totalCount = await FoodSch.countDocuments();
+    const expiredCount = await FoodSch.countDocuments({ status: "Expired" });
+    const pendingCount = await FoodSch.countDocuments({ status: "Pending" });
+
+    // Time series data for approvals, rejects, and deliveries over time
+    const approvalsOverTime = await FoodSch.aggregate([
+      { $match: { status: "Approved" } },
+      {
+        $group: {
+          _id: { $month: "$submissionDate" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const rejectsOverTime = await FoodSch.aggregate([
+      { $match: { status: "Rejected" } },
+      {
+        $group: {
+          _id: { $month: "$submissionDate" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    const deliveriesOverTime = await FoodSch.aggregate([
+      { $match: { deliveryDate: { $exists: true } } },
+      {
+        $group: {
+          _id: { $month: "$deliveryDate" },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+
+    res.json({
+      approvedCount,
+      totalCount,
+      expiredCount,
+      pendingCount,
+      approvalsOverTime: approvalsOverTime.map(item => item.count),
+      rejectsOverTime: rejectsOverTime.map(item => item.count),
+      deliveriesOverTime: deliveriesOverTime.map(item => item.count),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "An error occurred while fetching analytics data" });
+  }
+});
+
+
 
 //moved to bottom due to conflict with /get/:id-----------------------------------------------
 // GET a single FoodSch by ID
