@@ -3,6 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, Alert, TouchableOpacity, Modal
 import axios from 'axios';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Ionicons } from '@expo/vector-icons';
+import AppGradient from "@/components/AppGradient";
 
 const Donate = () => {
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
@@ -155,8 +156,13 @@ const Donate = () => {
   }
 
   return (
-    <View className="flex-1 p-5 bg-gray-100">
-      <Text className="text-3xl font-bold mb-8 text-center text-gray-900 p-4">Available <Text className="text-secondary-200">Donations</Text></Text>
+    <View className="flex-1">
+    <AppGradient
+          // Background Linear Gradient
+          colors={["#161b2e", "#0a4d4a", "#766e67"]}
+        >
+    
+      <Text className="text-3xl font-bold mb-8 text-center text-white p-4">Available <Text className="text-secondary-200">Donations</Text></Text>
 
       <FlatList
         data={approvedRequests}
@@ -201,6 +207,7 @@ const Donate = () => {
           </View>
         </Modal>
       )}
+    </AppGradient>
     </View>
   );
 };
