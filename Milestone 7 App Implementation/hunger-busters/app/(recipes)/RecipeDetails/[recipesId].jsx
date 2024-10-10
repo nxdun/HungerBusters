@@ -371,6 +371,13 @@ const styles = StyleSheet.create({
   errorText: {
     color: 'red',
   },
+  listContainer: {
+    marginVertical: 10,
+  },
+  listItem: {
+    marginBottom: 5,
+    fontSize: 16,
+  },  
 });
 
 export default RecipeDetails;
