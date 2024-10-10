@@ -4,8 +4,10 @@ import axios from 'axios';
 import { useStripe } from '@stripe/stripe-react-native';
 import { Ionicons } from '@expo/vector-icons';
 import AppGradient from "@/components/AppGradient";
+import { useNavigation } from '@react-navigation/native';
 
 const Donate = () => {
+  const navigation = useNavigation(); // Access navigation
   const { initPaymentSheet, presentPaymentSheet } = useStripe();
   const [approvedRequests, setApprovedRequests] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +90,7 @@ const Donate = () => {
   
         // Show the notification alert with the donation name and subscription type
         const subscriptionMessage = `You have successfully subscribed to ${donationName} with a ${subscriptionType} plan!`;
-        Alert.alert("Subscription Successful", subscriptionMessage);
+        Alert.alert("Donation Subscription Successful", subscriptionMessage);
   
         // You can perform any other actions here, like updating the UI or resetting state
       }
@@ -161,8 +163,16 @@ const Donate = () => {
           // Background Linear Gradient
           colors={["#161b2e", "#0a4d4a", "#766e67"]}
         >
+          
     
       <Text className="text-3xl font-bold mb-8 text-center text-white p-4">Available <Text className="text-secondary-200">Donations</Text></Text>
+
+      {/* Go Back Button */}
+      <TouchableOpacity 
+    onPress={() => navigation.goBack()}  // Use navigation.goBack()
+    className="absolute top-12 left-4 bg-white p-2 rounded-full shadow">
+    <Ionicons name="arrow-back" size={24} color="#4A90E2" />
+  </TouchableOpacity>
 
       <FlatList
         data={approvedRequests}
