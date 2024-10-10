@@ -1,24 +1,32 @@
-import { View, Text, Image, ScrollView } from 'react-native'
+import { View, Text, Image, ScrollView , TouchableOpacity} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Redirect, router } from "expo-router";
 import React from 'react'
 import AppGradient from "@/components/AppGradient";
-
+import { Ionicons } from '@expo/vector-icons';
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
+import { useNavigation } from '@react-navigation/native';
 
 const donationRequest = () => {
+  const navigation = useNavigation(); // Access navigation
   return (
     <AppGradient
           // Background Linear Gradient
           colors={["#161b2e", "#0a4d4a", "#766e67"]}
         >
+          {/* Go Back Button */}
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}  // Use navigation.goBack()
+            className="absolute top-12 left-4 bg-white p-2 rounded-full shadow">
+            <Ionicons name="arrow-back" size={24} color="#4A90E2" />
+          </TouchableOpacity>
         
         
         <View className="w-full justify-center items-center min-h-[85vh] px-4">
 
         <Text className="text-center text-white font-bold text-4xl">
-              Request Donation
+              Request <Text className="text-secondary-200">Donations</Text>
         </Text>
 
           <CustomButton title="School Donations"

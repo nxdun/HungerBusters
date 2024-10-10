@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet, Image, TextInput } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Import FontAwesome for icons
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 const FoodList = () => {
   const [foods, setFoods] = useState([]);
+  const [filteredFoods, setFilteredFoods] = useState([]); // To store filtered foods
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState(''); // Search input state
+  const [sortOrder, setSortOrder] = useState('asc'); // Sorting state
   const [userRole, setUserRole] = useState(null);
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -29,8 +32,8 @@ const FoodList = () => {
     const fetchFoods = async () => {
       try {
         const response = await axios.get(`${apiUrl}/api/foods`);
-        console.log('Fetched foods:', response.data); // Log the fetched data
         setFoods(response.data);
+        setFilteredFoods(response.data); // Initialize filtered foods with all foods
       } catch (error) {
         setError('Error fetching foods. Please try again later.');
         console.error("Error fetching foods", error);
@@ -42,10 +45,37 @@ const FoodList = () => {
     fetchFoods();
   }, [apiUrl]);
 
+  useEffect(() => {
+    filterAndSortFoods();
+  }, [searchTerm, sortOrder]);
+
+  const filterAndSortFoods = () => {
+    let updatedFoods = [...foods];
+
+    // Filter foods by search term
+    if (searchTerm) {
+      updatedFoods = updatedFoods.filter(food =>
+        food.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // Sort foods alphabetically
+    updatedFoods.sort((a, b) => {
+      if (sortOrder === 'asc') {
+        return a.name.localeCompare(b.name);
+      } else {
+        return b.name.localeCompare(a.name);
+      }
+    });
+
+    setFilteredFoods(updatedFoods);
+  };
+
   const deleteFood = async (id) => {
     try {
       await axios.delete(`${apiUrl}/api/foods/delete/${id}`);
       setFoods(foods.filter(food => food._id !== id));
+      setFilteredFoods(filteredFoods.filter(food => food._id !== id)); // Remove from filtered list
       Alert.alert('Success', 'Food deleted successfully');
     } catch (error) {
       console.error("Error deleting food", error);
@@ -54,18 +84,15 @@ const FoodList = () => {
   };
 
   const renderFoodItem = ({ item }) => {
-    // Assuming item.image only contains the filename, e.g., "1728505407544-food.jpg"
-    const imageUrl = item.image ? `${apiUrl}/${item.image}` : null; // Construct the URL
-  
-    console.log('Image URL:', imageUrl); // Log the constructed image URL for debugging
-  
+    const imageUrl = item.image ? `${apiUrl}/${item.image}` : null;
+
     return (
       <View style={styles.foodCard}>
         {imageUrl ? (
-          <Image 
-            source={{ uri: imageUrl }} 
-            style={styles.foodImage} 
-            resizeMode="cover" 
+          <Image
+            source={{ uri: imageUrl }}
+            style={styles.foodImage}
+            resizeMode="cover"
             onError={() => console.error('Failed to load image')}
           />
         ) : (
@@ -89,8 +116,6 @@ const FoodList = () => {
       </View>
     );
   };
-  
-  
 
   if (loading) {
     return (
@@ -117,15 +142,37 @@ const FoodList = () => {
       <View style={styles.countCard}>
         <Icon name="cutlery" size={30} color="#4A90E2" style={styles.icon} />
         <Text style={styles.countText}>
-          {foods.length} {foods.length === 1 ? 'Food Item' : 'Food Items'} Available
+          {filteredFoods.length} {filteredFoods.length === 1 ? 'Food Item' : 'Food Items'} Available
         </Text>
+      </View>
+
+      {/* Search Input */}
+      <TextInput
+        style={styles.searchInput}
+        placeholder="Search by name"
+        value={searchTerm}
+        onChangeText={setSearchTerm}
+      />
+
+      {/* Sorting Buttons */}
+      <View style={styles.sortButtons}>
+        <Button
+          title="Sort A-Z"
+          onPress={() => setSortOrder('asc')}
+          color={sortOrder === 'asc' ? '#4A90E2' : '#ccc'}
+        />
+        <Button
+          title="Sort Z-A"
+          onPress={() => setSortOrder('desc')}
+          color={sortOrder === 'desc' ? '#4A90E2' : '#ccc'}
+        />
       </View>
 
       {userRole === 'admin' && (
         <Button title="Add New Food" onPress={() => router.push('/AddFood')} />
       )}
       <FlatList
-        data={foods}
+        data={filteredFoods}
         renderItem={renderFoodItem}
         keyExtractor={item => item._id}
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -169,6 +216,19 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#333',
   },
+  searchInput: {
+    height: 40,
+    borderColor: '#ddd',
+    borderWidth: 1,
+    borderRadius: 10,
+    paddingLeft: 10,
+    marginBottom: 10,
+  },
+  sortButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 20,
+  },
   foodCard: {
     padding: 15,
     marginVertical: 5,
@@ -181,8 +241,8 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   foodImage: {
-    width: '100%', // Adjust the width as needed
-    height: 200,   // Adjust the height as needed
+    width: '100%',
+    height: 200,
     borderRadius: 10,
     marginBottom: 10,
   },

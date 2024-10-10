@@ -5,8 +5,11 @@ import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import axios from 'axios';
 import * as DocumentPicker from 'expo-document-picker';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const SchoolDonations = () => {
+  const navigation = useNavigation(); // Access navigation
   const [form, setForm] = useState({
     schoolName: '',
     contactNumber: '',
@@ -110,7 +113,14 @@ const SchoolDonations = () => {
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View className="w-full justify-center min-h-[85vh] px-4 my-6">
-          <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">School Donations Form</Text>
+
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}  // Use navigation.goBack()
+          className="absolute top-0.5 left-80 bg-white p-2 rounded-full shadow">
+          <Ionicons name="arrow-back" size={24} color="#4A90E2" />
+        </TouchableOpacity>
+
+          <Text className="text-2xl text-white text-semibold mt-12 font-psemibold">School Donations Form</Text>
           
           <FormField 
             title="Enter School Name"

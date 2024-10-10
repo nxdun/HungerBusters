@@ -4,6 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 const donationOptions = [
   { id: 1, label: 'Monetary', value: 'monetary' },
@@ -13,6 +15,7 @@ const donationOptions = [
 ];
 
 const ElderDonations = () => {
+  const navigation = useNavigation(); // Access navigation
   const [form, setForm] = useState({
     elderHomeName: '',
     eldersCount: '',
@@ -87,7 +90,14 @@ const ElderDonations = () => {
     <SafeAreaView className="bg-primary h-full">
       <ScrollView>
         <View className="w-full justify-center min-h-[85vh] px-4 my-6">
-          <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Elder Home Donation Request</Text>
+
+        <TouchableOpacity 
+          onPress={() => navigation.goBack()}  // Use navigation.goBack()
+          className="absolute top-0.5 left-80 bg-white p-2 rounded-full shadow">
+          <Ionicons name="arrow-back" size={24} color="#4A90E2" />
+        </TouchableOpacity>
+
+          <Text className="text-2xl text-white text-semibold mt-12 font-psemibold">Elder Home Donation Request</Text>
 
           <FormField 
             title="Elder Home Name"

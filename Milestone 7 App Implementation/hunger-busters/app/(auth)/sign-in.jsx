@@ -24,29 +24,38 @@ const SignIn = () => {
   const submit = async () => {
     setIsSubmitting(true);
     setError('');
-
+  
     // Validate form fields
     if (!form.email || !form.password) {
       setError('All fields are required.');
       setIsSubmitting(false);
       return;
     }
-
+  
     try {
       const response = await axios.post(`${apiUrl}/api/v1/auth`, form);
-
+  
       // Log the full response
       console.log('Response:', response.data);
-
-      // Adjust based on your actual response structure
-      const { role } = response.data.data.user;
-
-      // Store role in AsyncStorage
-      await AsyncStorage.setItem('userRole', role);
-
+  
+      // Extract token and user data correctly
+      const { token, user } = response.data.data;
+      const { role, username, email } = user;
+  
+      // Ensure token exists before attempting to save it
+      if (token) {
+        // Store token and user details in AsyncStorage
+        await AsyncStorage.setItem('userToken', token);  // Store token
+        await AsyncStorage.setItem('userRole', role);    // Store role
+        await AsyncStorage.setItem('userEmail', email);  // Store email
+        await AsyncStorage.setItem('username', username); // Store username
+      } else {
+        throw new Error('Token is undefined');
+      }
+  
       // Handle successful login
       console.log('Login successful:', response.data.message);
-
+  
       // Redirect based on user role
       if (role === 'admin') {
         router.replace('/admin-dashboard');
@@ -62,6 +71,7 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -81,6 +91,7 @@ const SignIn = () => {
             value={form.password}
             handleChangeText={(e) => setForm({...form, password: e})}
             otherStyles="mt-7"
+            secureTextEntry={true} // To hide the password
           />
           {error ? <Text className="text-red-500">{error}</Text> : null}
           <CustomButton 
