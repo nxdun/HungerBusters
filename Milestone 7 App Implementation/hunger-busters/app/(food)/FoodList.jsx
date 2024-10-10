@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Button, FlatList, ActivityIndicator, Alert, StyleSheet, Image, TextInput } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, Alert, Image, TextInput, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -7,11 +7,11 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 const FoodList = () => {
   const [foods, setFoods] = useState([]);
-  const [filteredFoods, setFilteredFoods] = useState([]); // To store filtered foods
+  const [filteredFoods, setFilteredFoods] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [searchTerm, setSearchTerm] = useState(''); // Search input state
-  const [sortOrder, setSortOrder] = useState('asc'); // Sorting state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
   const [userRole, setUserRole] = useState(null);
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
@@ -33,7 +33,7 @@ const FoodList = () => {
       try {
         const response = await axios.get(`${apiUrl}/api/foods`);
         setFoods(response.data);
-        setFilteredFoods(response.data); // Initialize filtered foods with all foods
+        setFilteredFoods(response.data);
       } catch (error) {
         setError('Error fetching foods. Please try again later.');
         console.error("Error fetching foods", error);
@@ -52,14 +52,12 @@ const FoodList = () => {
   const filterAndSortFoods = () => {
     let updatedFoods = [...foods];
 
-    // Filter foods by search term
     if (searchTerm) {
       updatedFoods = updatedFoods.filter(food =>
         food.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Sort foods alphabetically
     updatedFoods.sort((a, b) => {
       if (sortOrder === 'asc') {
         return a.name.localeCompare(b.name);
@@ -75,7 +73,7 @@ const FoodList = () => {
     try {
       await axios.delete(`${apiUrl}/api/foods/delete/${id}`);
       setFoods(foods.filter(food => food._id !== id));
-      setFilteredFoods(filteredFoods.filter(food => food._id !== id)); // Remove from filtered list
+      setFilteredFoods(filteredFoods.filter(food => food._id !== id));
       Alert.alert('Success', 'Food deleted successfully');
     } catch (error) {
       console.error("Error deleting food", error);
@@ -87,31 +85,33 @@ const FoodList = () => {
     const imageUrl = item.image ? `${apiUrl}/${item.image}` : null;
 
     return (
-      <View style={styles.foodCard}>
+      <View className="bg-white rounded-lg p-5 mb-4 shadow-lg w-full">
         {imageUrl ? (
           <Image
             source={{ uri: imageUrl }}
-            style={styles.foodImage}
+            className="w-full h-48 rounded-lg"
             resizeMode="cover"
             onError={() => console.error('Failed to load image')}
           />
         ) : (
-          <Text style={styles.noImageText}>Image not available</Text>
+          <Text className="text-center italic">Image not available</Text>
         )}
-        <Text style={styles.foodName}>{item.name}</Text>
-        <Button
-          title="View Details"
+        <Text className="text-xl font-bold mt-2">{item.name}</Text>
+        <Text className="text-base mt-2 mb-2">{item.description}</Text>
+
+        <TouchableOpacity className="bg-yellow-500 py-2 px-4 rounded-lg mt-3"
           onPress={() => {
             router.push(`/FoodDetails/${item._id}`);
           }}
-          color="#4A90E2"
-        />
+        >
+          <Text className="text-white text-center">View Details</Text>
+        </TouchableOpacity>
         {userRole === 'admin' && (
-          <Button
-            title="Delete"
-            color="red"
-            onPress={() => deleteFood(item._id)}
-          />
+        <TouchableOpacity className="bg-red-500 py-2 px-4 rounded-lg mt-3"
+          onPress={() => deleteFood(item._id)}
+        >
+          <Text className="text-white text-center">Delete</Text>
+        </TouchableOpacity>
         )}
       </View>
     );
@@ -119,170 +119,55 @@ const FoodList = () => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#4A90E2" />
-        <Text style={styles.loadingText}>Loading foods...</Text>
+        <Text className="text-gray-700 text-lg mt-4">Loading foods...</Text>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
-        <Text style={styles.errorText}>{error}</Text>
+      <View className="flex-1 justify-center items-center">
+        <Text className="text-red-500 text-lg">{error}</Text>
       </View>
     );
   }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>All Foods</Text>
+    <View className="p-2 bg-gray-100 flex-1">
+      <Text className="text-2xl font-bold text-center my-2">All Foods</Text>
 
-      {/* Count Card */}
-      <View style={styles.countCard}>
-        <Icon name="cutlery" size={30} color="#4A90E2" style={styles.icon} />
-        <Text style={styles.countText}>
-          {filteredFoods.length} {filteredFoods.length === 1 ? 'Food Item' : 'Food Items'} Available
-        </Text>
-      </View>
-
-      {/* Search Input */}
       <TextInput
-        style={styles.searchInput}
-        placeholder="Search by name"
+        className="h-10 border border-gray-300 px-2 rounded-lg mb-4"
+        placeholder="Search Foods..."
         value={searchTerm}
         onChangeText={setSearchTerm}
       />
 
-      {/* Sorting Buttons */}
-      <View style={styles.sortButtons}>
-        <Button
-          title="Sort A-Z"
-          onPress={() => setSortOrder('asc')}
-          color={sortOrder === 'asc' ? '#4A90E2' : '#ccc'}
-        />
-        <Button
-          title="Sort Z-A"
-          onPress={() => setSortOrder('desc')}
-          color={sortOrder === 'desc' ? '#4A90E2' : '#ccc'}
-        />
+      <View className="flex-row items-center bg-blue-100 py-2 px-3 rounded-lg mb-4">
+        <Icon name="cutlery" size={30} color="#4A90E2" className="mr-2" />
+        <Text className="text-lg text-blue-700">
+          {filteredFoods.length} {filteredFoods.length === 1 ? 'Food' : 'Foods'} Available
+        </Text>
       </View>
 
       {userRole === 'admin' && (
-        <Button title="Add New Food" onPress={() => router.push('/AddFood')} />
+        <TouchableOpacity className="bg-green-500 py-2 px-4 rounded-lg mb-4" onPress={() => router.push('/AddFood')}>
+          <Text className="text-white text-center">Add Food</Text>
+        </TouchableOpacity>
       )}
+
       <FlatList
         data={filteredFoods}
         renderItem={renderFoodItem}
-        keyExtractor={item => item._id}
-        ItemSeparatorComponent={() => <View style={styles.separator} />}
-        ListEmptyComponent={<Text style={styles.emptyText}>No foods available.</Text>}
+        keyExtractor={(item) => item._id.toString()}
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={<Text>No foods available.</Text>}
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#fff',
-    flex: 1,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginVertical: 10,
-    color: '#333',
-  },
-  countCard: {
-    padding: 15,
-    marginVertical: 10,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  icon: {
-    marginRight: 10,
-  },
-  countText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
-  },
-  searchInput: {
-    height: 40,
-    borderColor: '#ddd',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 10,
-    marginBottom: 10,
-  },
-  sortButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 20,
-  },
-  foodCard: {
-    padding: 15,
-    marginVertical: 5,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  foodImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  noImageText: {
-    textAlign: 'center',
-    color: '#888',
-    marginBottom: 10,
-  },
-  foodName: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 10,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#4A90E2',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: 'red',
-    fontSize: 16,
-  },
-  separator: {
-    height: 10,
-  },
-  emptyText: {
-    textAlign: 'center',
-    fontSize: 16,
-    color: '#888',
-  },
-});
 
 export default FoodList;

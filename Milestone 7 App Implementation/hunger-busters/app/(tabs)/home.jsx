@@ -56,15 +56,15 @@ const Home = () => {
           />
 
           <CustomButton 
-            title="Food"
-            handlePress={() => router.push('/foods')}
+            title="Food Details"
+            handlePress={() => router.push('/FoodList')}
             containerStyles="w-[180px] h-[200px] bg-teal-400 rounded-xl shadow-md m-2" 
           />
 
           {/* New Food Recipes button */}
           <CustomButton 
             title="Food Recipes"
-            handlePress={() => router.push('/recipes')}
+            handlePress={() => router.push('/RecipeList')}
             containerStyles="w-[180px] h-[200px] bg-orange-400 rounded-xl shadow-md m-2" 
           />
         </View>
