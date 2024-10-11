@@ -18,6 +18,8 @@ const foodRoutes = require('./routes/foodRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
 const FoodSubmissionRoutes = require('./routes/FoodSubmissionRoutes');
 
+// Import the subscriptions route
+const SubscriptionRoutes = require('./routes/subscriptions');
 
 
 // Connect to database
@@ -49,6 +51,9 @@ app.use('/api/fsr',FoodSubmissionRoutes);
 app.use('/api/recipes', recipeRoutes);
 
 //please add a space before adding route to avoid conflict
+// Add the new subscriptions route
+app.use('/api/v1/user', SubscriptionRoutes); // Route for user subscriptions
+
 
 // Create Stripe customer and subscription
 app.post('/create-subscription', async (req, res) => {

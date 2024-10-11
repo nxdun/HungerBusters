@@ -15,38 +15,42 @@ const MyDonations = () => {
   const apiUrl = process.env.EXPO_PUBLIC_API_URL;
 
   useEffect(() => {
-    // Fetch user subscriptions
     const fetchUserSubscriptions = async () => {
       try {
-        // Get the user token from AsyncStorage
         const token = await AsyncStorage.getItem('userToken');
-
-        // Ensure token exists
+        const email = await AsyncStorage.getItem('userEmail'); // Fetch the user's email
+  
         if (!token) {
           setError('User not logged in');
           setLoading(false);
           return;
         }
-
-        // Make API call to get user subscriptions
+  
+        if (!email) {
+          setError('Email is required');
+          setLoading(false);
+          return;
+        }
+  
         const response = await axios.get(`${apiUrl}/api/v1/user/subscriptions`, {
           headers: {
-            Authorization: `Bearer ${token}`
-          }
+            Authorization: `Bearer ${token}`,
+          },
+          params: { email }, // Pass the email as query parameter
         });
-
-        setSubscriptions(response.data.subscriptions);
+        
+        setSubscriptions(response.data); // Adjust this if your backend response structure is different
       } catch (err) {
+        console.error('Error in fetchUserSubscriptions:', err); // Log the error for debugging
         setError('Failed to fetch subscriptions');
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchUserSubscriptions();
   }, []);
 
-  // Render the loading indicator
   if (loading) {
     return (
       <AppGradient colors={["#161b2e", "#0a4d4a", "#766e67"]}>
@@ -58,7 +62,6 @@ const MyDonations = () => {
     );
   }
 
-  // Render error if occurred
   if (error) {
     return (
       <AppGradient colors={["#161b2e", "#0a4d4a", "#766e67"]}>
@@ -69,7 +72,6 @@ const MyDonations = () => {
     );
   }
 
-  // Render subscriptions
   return (
     <AppGradient colors={["#161b2e", "#0a4d4a", "#766e67"]}>
       <TouchableOpacity 
@@ -84,15 +86,18 @@ const MyDonations = () => {
           My <Text className="text-secondary-200">Donations</Text>
         </Text>
 
-        <ScrollView className="mt-8">
-          {subscriptions.map((donation) => (
-            <View key={donation.id} className="bg-white rounded-lg p-6 mb-4 shadow-lg w-full">
-              <Text className="text-xl font-bold text-gray-900 mb-2">{donation.name}</Text>
-              <Text className="text-gray-700">Plan: {donation.plan}</Text>
-              <Text className="text-gray-700">Status: {donation.status}</Text>
-              {/* Add more details as needed */}
-            </View>
-          ))}
+        <ScrollView className="mt-8 w-full">
+          {subscriptions.length > 0 ? (
+            subscriptions.map((donation) => (
+              <View key={donation.id} className="bg-white rounded-lg p-6 mb-4 shadow-lg w-full">
+                 <Text className="text-xl font-bold text-gray-900 mb-2">{donation.plan.nickname || 'Donation Plan'}</Text>
+                <Text className="text-gray-700">Plan Amount: ${(donation.plan.amount / 100).toFixed(2)} {donation.plan.currency.toUpperCase()}</Text>
+                <Text className="text-gray-700">Status: {donation.status}</Text>
+              </View>
+            ))
+          ) : (
+            <Text className="text-lg text-gray-600">No subscriptions found.</Text>
+          )}
         </ScrollView>
       </View>
     </AppGradient>
