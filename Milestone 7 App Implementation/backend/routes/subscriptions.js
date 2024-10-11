@@ -1,7 +1,8 @@
 // Assuming you have the required imports at the top
 const express = require('express');
 const router = express.Router();
-const stripe = require('stripe')('sk_test_51Q7x6lG4mkmOcCt5ma6CmkqhAS2FZzA5sZJHWF3HBWOdVMl3mMG4Z4VdHFPzIwQUH4Mdg15v84exR286eXjvgOds00mVxm4VEg');
+const Stripe = require('stripe');
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY); 
 
 // GET /v1/user/subscriptions
 router.get('/subscriptions', async (req, res) => {
@@ -30,6 +31,23 @@ router.get('/subscriptions', async (req, res) => {
     } catch (error) {
         console.error('Error fetching subscriptions:', error);
         res.status(500).json({ message: 'Error fetching subscriptions' });
+    }
+});
+
+// Cancel subscription route
+router.post('/unsubscribe', async (req, res) => {
+    const { subscriptionId } = req.body;
+
+    if (!subscriptionId) {
+        return res.status(400).json({ message: 'Subscription ID is required' });
+    }
+
+    try {
+        const deletedSubscription = await stripe.subscriptions.cancel(subscriptionId);
+        res.json({ message: 'Subscription canceled', deletedSubscription });
+    } catch (error) {
+        console.error('Error canceling subscription:', error);
+        res.status(500).json({ message: 'Error canceling subscription' });
     }
 });
 

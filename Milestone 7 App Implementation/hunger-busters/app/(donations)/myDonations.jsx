@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -51,6 +51,30 @@ const MyDonations = () => {
     fetchUserSubscriptions();
   }, []);
 
+  // Function to handle unsubscription
+  const handleUnsubscribe = async (subscriptionId) => {
+    try {
+      const token = await AsyncStorage.getItem('userToken');
+  
+      const response = await axios.post(
+        `${apiUrl}/api/v1/user/unsubscribe`,
+        { subscriptionId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      Alert.alert('Success', 'Subscription canceled');
+      // Refresh subscriptions after unsubscription
+      setSubscriptions(subscriptions.filter(sub => sub.id !== subscriptionId));
+    } catch (error) {
+      console.error('Error in handleUnsubscribe:', error);
+      Alert.alert('Error', 'Failed to cancel subscription');
+    }
+  };
+
   if (loading) {
     return (
       <AppGradient colors={["#161b2e", "#0a4d4a", "#766e67"]}>
@@ -90,9 +114,17 @@ const MyDonations = () => {
           {subscriptions.length > 0 ? (
             subscriptions.map((donation) => (
               <View key={donation.id} className="bg-white rounded-lg p-6 mb-4 shadow-lg w-full">
-                 <Text className="text-xl font-bold text-gray-900 mb-2">{donation.plan.nickname || 'Donation Plan'}</Text>
+                <Text className="text-xl font-bold text-gray-900 mb-2">{donation.plan.nickname || 'Donation Plan'}</Text>
                 <Text className="text-gray-700">Plan Amount: ${(donation.plan.amount / 100).toFixed(2)} {donation.plan.currency.toUpperCase()}</Text>
                 <Text className="text-gray-700">Status: {donation.status}</Text>
+
+                {/* Unsubscribe Button */}
+                <TouchableOpacity
+                  onPress={() => handleUnsubscribe(donation.id)}
+                  className="mt-4 bg-red-500 p-3 rounded"
+                >
+                  <Text className="text-white text-center">Unsubscribe</Text>
+                </TouchableOpacity>
               </View>
             ))
           ) : (
