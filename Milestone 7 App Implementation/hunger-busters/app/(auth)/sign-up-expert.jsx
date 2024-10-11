@@ -13,6 +13,7 @@ const SignUp = () => {
     username: '',
     email: '',
     password: '',
+    role:'expert' //role as expert
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,13 +114,13 @@ const SignUp = () => {
 
         <View className="justify-center pb-5 flex-row gap-2">
           <Text className="text-lg text-gray-100 font-pregular">
-            Are you a Expert?
+            Are you a User?
           </Text>
           <Link
-            href="/sign-up-expert"
+            href="/sign-up"
             className="text-lg font-psemibold text-secondary"
           >
-            Sign up As Expert
+            Sign up As User
           </Link>
         </View>
       </KeyboardAvoidingView>

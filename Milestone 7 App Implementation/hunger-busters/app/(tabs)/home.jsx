@@ -50,7 +50,7 @@ const Home = () => {
                 <FontAwesome5 name="user-tie" size={36} color="white" />
                 <Text className="text-xl text-white mt-2">Experts</Text>
                 <CustomButton
-                  title="Consult"
+                  title="Check"
                   handlePress={() => router.push('/expert-dashboard')}
                   containerStyles="mt-auto bg-white"
                   textStyles="text-sky-950"
