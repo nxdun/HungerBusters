@@ -59,8 +59,6 @@ const SignIn = () => {
       // Redirect based on user role
       if (role === 'admin') {
         router.replace('/admin-dashboard');
-      } else if (role === 'expert') {
-        router.replace('/expert-dashboard'); 
       } else {
         router.replace('/home'); // Default redirect for regular users
       }
