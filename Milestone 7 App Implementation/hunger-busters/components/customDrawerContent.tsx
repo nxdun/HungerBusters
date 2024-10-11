@@ -33,7 +33,7 @@ export default function CustomDrawerContent(props:any) {
           borderRadius: 5, // Rounded corners
         })}
       >
-        <Text style={{ color: 'white', textAlign: 'center' }}>Logout</Text>
+        <Text style={{ color: 'white', textAlign: 'center' }}>Close Drawer</Text>
       </Pressable>
     </View>
   )

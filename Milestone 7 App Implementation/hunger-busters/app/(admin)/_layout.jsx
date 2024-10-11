@@ -25,6 +25,20 @@ export default function Layout() {
           }}
         />
         <Drawer.Screen
+          name="admin-profile"
+          options={{
+            drawerLabel: 'Admin Profile',
+            title: 'Admin Profile',
+            drawerIcon: ({ focused, color, size }) => (
+              <MaterialIcons
+                name={focused ? 'admin-panel-settings' : 'admin-panel-settings'}
+                size={size}
+                color={color}
+              />
+            ),
+          }}
+        />
+        <Drawer.Screen
           name="about"
           options={{
             drawerLabel: 'About',

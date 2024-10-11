@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 
 const DonationRequests = () => {
+  const navigation = useNavigation(); // Access navigation
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -167,8 +169,15 @@ const DonationRequests = () => {
 
   return (
     <View className="flex-1 p-7 bg-gray-100">
-      <Text className="text-3xl font-extrabold mb-6 text-center text-gray-800">Donation Requests</Text>
+      <Text className="text-3xl font-extrabold mb-6 text-center text-gray-800 mt-4">Donation Requests</Text>
       
+            {/* Go Back Button */}
+          <TouchableOpacity 
+            onPress={() => navigation.goBack()}  // Use navigation.goBack()
+            className="absolute top-9 left-4 bg-white p-2 rounded-full shadow">
+            <MaterialIcons name="arrow-back" size={24} color="#4A90E2" />
+          </TouchableOpacity>
+
       {/* Search Bar */}
       <TextInput
         placeholder="Search requests..."
