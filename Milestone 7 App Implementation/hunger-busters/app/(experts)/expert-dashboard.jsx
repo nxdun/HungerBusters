@@ -65,7 +65,7 @@ const ExpertDashboard = () => {
   };
 
   const handleBackPress = () => {
-    router.push("/");
+    router.push("/home");
   };
 
   if (loading) {
