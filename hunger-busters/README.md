@@ -1,0 +1,3 @@
+- npm install
+- add enviroment variable
+- npx expo start

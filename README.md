@@ -1,4 +1,1 @@
-# UEE
-User Experience Engineering​ - SE3050
-
-/
+SLIIT UEE ORG REPO : https://github.com/SLIIT-UEE/uee-2024-assignment-uee_se-s2-we-08
