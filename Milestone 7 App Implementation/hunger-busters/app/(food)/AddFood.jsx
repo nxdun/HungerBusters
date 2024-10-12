@@ -6,6 +6,7 @@ import CustomButton from '../../components/CustomButton';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 
+
 const AddFood = () => {
   const [form, setForm] = useState({
     name: '',
