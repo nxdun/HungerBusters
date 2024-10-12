@@ -91,19 +91,7 @@ const Home = () => {
               </View>
             </View>
 
-            {/* Health */}
-            <View className="w-[47%] h-[200px] bg-yellow-400/80 rounded-xl shadow-lg mb-4">
-              <View className="p-4 flex-1 justify-between">
-                <MaterialIcons name="health-and-safety" size={36} color="white" />
-                <Text className="text-xl text-white mt-2">Health</Text>
-                <CustomButton
-                  title="Learn More"
-                  handlePress={() => router.push('#')}
-                  containerStyles="mt-auto bg-white"
-                  textStyles="text-yellow-600"
-                />
-              </View>
-            </View>
+           
 
             {/* Food Details */}
             <View className="w-[47%] h-[200px] bg-blue-600/80 rounded-xl shadow-lg mb-4">
@@ -133,6 +121,19 @@ const Home = () => {
               </View>
             </View>
           </View>
+           {/* Health */}
+           <View className="w-[100%] h-[200px] bg-yellow-400/80 rounded-xl shadow-lg mb-4">
+              <View className="p-4 flex-1 justify-between">
+                <MaterialIcons name = "star" size={36} color="white" />
+                <Text className="text-xl text-white mt-2">Food - Listing</Text>
+                <CustomButton
+                  title="View"
+                  handlePress={() => router.push('/landing')}
+                  containerStyles="mt-auto bg-white"
+                  textStyles="text-yellow-600"
+                />
+              </View>
+            </View>
         </ScrollView>
       </SafeAreaView>
     </>

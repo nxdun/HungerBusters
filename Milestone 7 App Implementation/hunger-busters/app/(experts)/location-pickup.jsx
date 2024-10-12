@@ -6,6 +6,7 @@ import * as Location from 'expo-location';
 import { BlurView } from 'expo-blur';
 import CustomButton from "../../components/CustomButton"; // Assuming you have this reusable button
 import { styled } from 'nativewind'; // For NativeWind styling
+import { router } from 'expo-router';
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,6 +42,7 @@ const PickupScreen = () => {
   }, []);
 
   const handleConfirmLocation = () => {
+    router.push('/donation-history'); // Redirect to the home screen
     const finalLocation = customLocation || location;
     if (!finalLocation) {
       Alert.alert("Error", "Location not set");

@@ -157,6 +157,51 @@ router.delete("/delete/:id", async (req, res) => {
   }
 });
 
+//test
+// Route to fetch food data
+router.get("/get/food-data", async (req, res) => {
+  try {
+    // Fetch food data with statuses "Pending", "On Refrigerator", and "Approved"
+    const pendingApprovals = await FoodSch.find({ status: "Pending" })
+      .select("_id images description")
+      .lean();
+
+    const onRefrigerator = await FoodSch.find({ status: "On Refrigerator" })
+      .select("_id images description")
+      .lean();
+
+    const approved = await FoodSch.find({ status: "Approved" })
+      .select("_id images description")
+      .lean();
+
+    // Format the data
+    const formatEntries = (entries) =>
+      entries.map((entry) => ({
+        id: entry._id,
+        images: entry.images || [],
+        description: entry.description || "No description provided",
+      }));
+
+    // Create the response
+    const response = {
+      pendingApprovals: formatEntries(pendingApprovals),
+      onRefrigerator: formatEntries(onRefrigerator),
+      approved: formatEntries(approved),
+    };
+
+    // Send the formatted response
+    res.json(response);
+  } catch (error) {
+    console.error("Error fetching food data:", error);
+    res.status(500).json({
+      message: "An error occurred while fetching food data",
+    });
+  }
+});
+
+module.exports = router;
+
+
 // Advanced Operation-------------------------------------------------------------------------------------------------
 // GET dashboard data
 // @route   GET /api/fsr/dashboard-data

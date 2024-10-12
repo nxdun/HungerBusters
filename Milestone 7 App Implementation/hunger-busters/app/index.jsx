@@ -41,16 +41,12 @@ export default function App() {
           containerStyles="w-full mt-7" 
           />
           
-          <Link href="/home" className="text-center mt-3">
+          {/* <Link href="/home" className="text-center mt-3">
             <Text className="text-sm font-pregular text-gray-100">
-              (dev)Go to Homepage From Here
+              (dev) link
             </Text>
-          </Link>
-          <Link href="/admin-dashboard" className="text-center mt-3">
-            <Text className="text-sm font-pregular text-gray-100">
-              (dev)Go to Admin page From Here
-            </Text>
-          </Link>
+          </Link> */}
+
 
           <StatusBar backgroundColor="#161622" style="light" />
 

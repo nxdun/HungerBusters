@@ -15,7 +15,7 @@ const FoodLayout = () => {
           options={{ headerShown: false }} // Hides the header for this screen
         />
         <Stack.Screen
-          name="RecipeDetails/[recipeId]" // Dynamic route for food details
+          name="RecipeDetails/[recipesId]" // Dynamic route for food details
           options={{ headerShown: false }} // Hides the header for this screen
         />
       </Stack>
