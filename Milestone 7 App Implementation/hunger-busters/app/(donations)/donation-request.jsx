@@ -6,21 +6,22 @@ import AppGradient from "@/components/AppGradient";
 import { Ionicons } from '@expo/vector-icons';
 import { images } from "../../constants";
 import CustomButton from '../../components/CustomButton';
-import { useNavigation } from '@react-navigation/native';
+import TransparentTopBar from '../../components/TransparentTopBar';
 
 const donationRequest = () => {
-  const navigation = useNavigation(); // Access navigation
+  const handleBackPress = () => {
+    router.push("/donations");
+  };
+  
   return (
     <AppGradient
           // Background Linear Gradient
           colors={["#161b2e", "#0a4d4a", "#766e67"]}
         >
-          {/* Go Back Button */}
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()}  // Use navigation.goBack()
-            className="absolute top-12 left-4 bg-white p-2 rounded-full shadow">
-            <Ionicons name="arrow-back" size={24} color="#4A90E2" />
-          </TouchableOpacity>
+          <TransparentTopBar
+        title="Donation Request"
+        onBackPress={handleBackPress}
+      />
         
         
         <View className="w-full justify-center items-center min-h-[85vh] px-4">

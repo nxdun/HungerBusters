@@ -2,10 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Alert, TextInput } from 'react-native';
 import axios from 'axios';
 import { MaterialIcons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import TransparentTopBar from '../../components/TransparentTopBar';
+import { router } from 'expo-router';
+import ShaderCanvas from '../shaderCanvas';
+
 
 const DonationRequests = () => {
-  const navigation = useNavigation(); // Access navigation
+  const handleBackPress = () => {
+    router.push("/admin-dashboard");
+  };
   const [requests, setRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -168,22 +173,22 @@ const DonationRequests = () => {
   }
 
   return (
-    <View className="flex-1 p-7 bg-gray-100">
-      <Text className="text-3xl font-extrabold mb-6 text-center text-gray-800 mt-4">Donation Requests</Text>
+    <>
+    <ShaderCanvas />
+    <View className="flex-1 p-7">
       
-            {/* Go Back Button */}
-          <TouchableOpacity 
-            onPress={() => navigation.goBack()}  // Use navigation.goBack()
-            className="absolute top-9 left-4 bg-white p-2 rounded-full shadow">
-            <MaterialIcons name="arrow-back" size={24} color="#4A90E2" />
-          </TouchableOpacity>
-
+      <View className="pt-10 pb-3">
+      <TransparentTopBar
+        title="Donation Requests"
+        onBackPress={handleBackPress}
+      />
+    </View>
       {/* Search Bar */}
       <TextInput
         placeholder="Search requests..."
         value={searchQuery}
         onChangeText={setSearchQuery}
-        className="mb-4 p-2 border border-black rounded"
+        className="mb-4 p-2  border border-black text-cyan-300 rounded"
       />
 
       {/* Filter Options */}
@@ -227,6 +232,7 @@ const DonationRequests = () => {
         contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
+    </>
   );
 };
 
