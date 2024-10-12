@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { usePathname } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import TransparentTopBar from "../../../components/TransparentTopBar";
 
 const RecipeDetails = () => {
   const router = useRouter();
@@ -84,6 +85,9 @@ const RecipeDetails = () => {
       Alert.alert('Error', 'No video link available.');
     }
   };
+  const handleBackPress = () => {
+    router.push("/RecipeList");
+  };
 
   if (loading) {
     return (
@@ -113,7 +117,12 @@ const RecipeDetails = () => {
   const imageUrl = recipe.image ? `${apiUrl}/${recipe.image}` : null; 
 
   return (
+    
     <ScrollView contentContainerStyle={styles.container}>
+      <TransparentTopBar
+        title="Recipes List"
+        onBackPress={handleBackPress}
+      />
       <Text style={styles.title}>{recipe.title}</Text>
       {imageUrl ? (
         <Image 

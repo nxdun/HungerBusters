@@ -5,6 +5,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { Picker } from '@react-native-picker/picker';
+import TransparentTopBar from "../../components/TransparentTopBar";
 
 const RecipeList = () => {
   const [recipes, setRecipes] = useState([]);
@@ -141,6 +142,10 @@ const RecipeList = () => {
     setDifficultyFilter('');
   };
 
+  const handleBackPress = () => {
+    router.push("/home");
+  };
+
   if (loading) {
     return (
       <View className="flex-1 justify-center items-center">
@@ -159,7 +164,12 @@ const RecipeList = () => {
   }
 
   return (
+    
     <View className="p-2 bg-gray-100 flex-1">
+      <TransparentTopBar
+        title="Home"
+        onBackPress={handleBackPress}
+      />
       <Text className="text-2xl font-bold text-center my-2">All Recipes</Text>
 
       <TextInput

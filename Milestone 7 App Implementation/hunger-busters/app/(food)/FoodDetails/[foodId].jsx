@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useRouter } from 'expo-router';
 import { usePathname } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage'; // Import AsyncStorage
+import TransparentTopBar from "../../../components/TransparentTopBar";
 
 const FoodDetails = () => {
   const router = useRouter();
@@ -66,6 +67,9 @@ const FoodDetails = () => {
       Alert.alert('Error', 'Failed to update food');
     }
   };
+  const handleBackPress = () => {
+    router.push("/FoodList");
+  };
 
   if (loading) {
     return (
@@ -97,6 +101,10 @@ const FoodDetails = () => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
+            <TransparentTopBar
+        title="Food List"
+        onBackPress={handleBackPress}
+      />
       <Text style={styles.title}>{food.name}</Text>
       {imageUrl ? (
         <Image 

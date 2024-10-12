@@ -6,6 +6,7 @@ import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
 import FormField from '../../components/FormField'; // Ensure this is created similarly to AddFood
 import CustomButton from '../../components/CustomButton';
+import TransparentTopBar from "../../components/TransparentTopBar";
 
 const AddRecipe = () => {
   const [form, setForm] = useState({
@@ -58,6 +59,9 @@ const AddRecipe = () => {
   const removeImage = () => {
     setImage(null);
   };
+  const handleBackPress = () => {
+    router.push("/RecipeList");
+  };
 
   const handleAddRecipe = async () => {
     setIsSubmitting(true);
@@ -103,6 +107,10 @@ const AddRecipe = () => {
 
   return (
     <SafeAreaView className="bg-primary h-full">
+      <TransparentTopBar
+        title="Recipes List"
+        onBackPress={handleBackPress}
+      />
       <ScrollView>
         <View className="w-full justify-center min-h-[85vh] px-4 my-6">
           <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Add New Food</Text>

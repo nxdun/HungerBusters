@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import TransparentTopBar from "../../components/TransparentTopBar";
 
 const FoodList = () => {
   const [foods, setFoods] = useState([]);
@@ -80,6 +81,9 @@ const FoodList = () => {
       Alert.alert('Error', 'Failed to delete food');
     }
   };
+  const handleBackPress = () => {
+    router.push("/home");
+  };
 
   const renderFoodItem = ({ item }) => {
     const imageUrl = item.image ? `${apiUrl}/${item.image}` : null;
@@ -136,14 +140,12 @@ const FoodList = () => {
 
   return (
     <View className="p-2 bg-gray-100 flex-1">
+      <TransparentTopBar
+        title="Home"
+        onBackPress={handleBackPress}
+      />
       <Text className="text-2xl font-bold text-center my-2">All Foods</Text>
 
-      <TouchableOpacity
-        className="bg-blue-500 py-2 px-4 rounded-lg self-start mt-4 mb-6 ml-2" // Adjusted margin for moving the button slightly down
-        onPress={() => router.back()}
-      >
-        <Text className="text-white text-center">Back</Text>
-      </TouchableOpacity>
 
       <TextInput
         className="h-10 border border-gray-300 px-2 rounded-lg mb-4"

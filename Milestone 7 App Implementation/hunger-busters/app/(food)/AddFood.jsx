@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Alert, Image, TouchableOpacity } from 'react-native';
+import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FormField from '../../components/FormField';
 import CustomButton from '../../components/CustomButton';
 import axios from 'axios';
 import * as ImagePicker from 'expo-image-picker';
+import TransparentTopBar from "../../components/TransparentTopBar";
 
 
 const AddFood = () => {
@@ -60,6 +62,10 @@ const AddFood = () => {
 
   const removeImage = () => {
     setSelectedImage(null);
+  };
+
+  const handleBackPress = () => {
+    router.push("/FoodList");
   };
 
   const submit = async () => {
@@ -147,6 +153,10 @@ const AddFood = () => {
 
   return (
     <SafeAreaView className="bg-primary h-full">
+      <TransparentTopBar
+        title="Food list"
+        onBackPress={handleBackPress}
+      />
       <ScrollView>
         <View className="w-full justify-center min-h-[85vh] px-4 my-6">
           <Text className="text-2xl text-white text-semibold mt-10 font-psemibold">Add New Food</Text>
