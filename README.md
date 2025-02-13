@@ -1,4 +1,4 @@
-# Project Name
+# Hunger Busters
 
 ## Overview
 An awesome project that integrates **MongoDB, JWT authentication, and Stripe payments** on the backend while utilizing **Expo SDK 51** for a smooth frontend experience.
